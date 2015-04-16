@@ -66,12 +66,14 @@ class MemoryManagement {
 
     } //EOmain
 
-    /*
+    
 	public MemoryManagement(int bytes, int policy) 
 	{ 
 		// intialize memory with these many bytes.
 		// Use segmentation if policy==0, paging if policy==1 
 	}
+
+	
 
 	public int allocate(int bytes, int pid, int text_size, int data_size, int heap_size)
 	{ 
@@ -140,7 +142,7 @@ class MemoryManagement {
 		// Total Internal Fragmentation = 13 bytes
 		// Failed allocations (No memory) = 2
 		// Failed allocations (External Fragmentation) = 0 
-	}*/
+	}
 
 } // EOF
 
@@ -163,6 +165,42 @@ class Action{
 	/* pid getter */
 	public int getPid() { 
 		return pid;
+	}
+
+	class Hole {
+		int base;
+		int limit;
+		int size;
+
+		public Hole (int base, int limit, int size) {
+			this.base = base;
+			this.limit = limit;
+			this.size = size;
+		}
+
+		public int getBase() {
+			return this.base;
+		}
+
+		public int getLimit() {
+			return this.limit;
+		}
+
+		public int getSize() {
+			return this.size();
+		}
+
+		public void setBase(int base) {
+			this.base = base;
+		}	
+
+		public void setLimit(int limit) {
+			this.base = base;
+		}	
+
+		public void setSize(int size) {
+			this.size = size;
+		}	
 	}
 
 } // EOProcess
