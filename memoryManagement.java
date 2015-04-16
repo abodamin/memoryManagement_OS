@@ -17,8 +17,9 @@ class MemoryManagement {
 	
 	private static LinkedList<Action> actionQueue = new LinkedList<Action>(); // Queue for Storing actions related to the pid
 	
-	private static LinkedList<Int[]> segmentQueue = new LinkedList<Int[]>(); // Queue for Storing Info
-	private static LinkedList<Int[]> holeQueue = new LinkedList<Int[]>(); // Queue for Storing Info
+	private static LinkedList<Integer[]> segmentQueue = new LinkedList<Integer[]>(); // Queue for Storing Info
+	private static LinkedList<Integer[]> holeQueue = new LinkedList<Integer[]>(); // Queue for Storing Info
+
 
 	public static void main(String[] args) {
         File file = new File(args[0]);
@@ -28,18 +29,23 @@ class MemoryManagement {
 	        sc = new Scanner(file);
         	
 	        if (sc.hasNext()){
-	        	String task = sc.nextLine();
-	        	print(task);
+	        	String firstLine = sc.nextLine();
+	        	String[] memorySize_task = firstLine.split(" ");
+
+	        	/* Get the total memory size*/
+	        	int memorySize = Integer.parseInt(memorySize_task[0]);
+	        	/* 1 = segmentation, 2 = paging */
+	        	int task = Integer.parseInt(memorySize_task[2]);
 
 	        	while (sc.hasNext()){
 	        		String nextJob = sc.nextLine();
 	        		
+					// this list is : [A, size, pid, text, data, heap]
 	        		String[] newProcess_List = nextJob.split(" ");
-		        	// [A, size, pid, text, data, heap]
 		        	
 	        		// Actions: A = add / D = delete / P = print
 	        		String action = newProcess_List[0];
-	        		int pid = Integer.parseInt(cpuBurst_string[2]);
+	        		int pid = Integer.parseInt(newProcess_List[1]);
 					
 					Action actionObject = new Action(action, pid);
 					actionQueue.add(actionObject);
