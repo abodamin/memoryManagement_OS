@@ -79,7 +79,46 @@ class MemoryManagement {
 		// Use segmentation if policy==0, paging if policy==1 
 	}
 
-	
+	/**
+	*	Tries to insert a segment into RAM.
+	*	
+	*	@param	 segment 	
+	*	@Return  whether or not segment could be inserted
+	*/
+	public boolean insertSegment(Segment segment) {
+		// try to find a hole bigger than segment
+		// if none, return false
+		// if found, call insertSegmentInHole
+	}
+
+	/**
+	*	Inserts segment into a hole. If segment doesn't take
+	*	up whole space
+	*	
+	*	@param	 segment 	
+	*	@param	 hole  
+	*/
+	public void insertSegmentInHole(Segment segment, Hole hole) {
+		// remove hole from list
+		// insert segment into hole
+		// use leftover space to create new hole
+		// add segment to list of segments
+		// if new hole, add to list of holes
+
+	}
+
+	/**
+	*	Inserts hole into list of holes
+	*		
+	*	@param	 hole  
+	*/
+	public void addHole(Hole hole) {
+		// add hole
+		// sort
+
+
+	}
+
 
 	public int allocate(int bytes, int pid, int text_size, int data_size, int heap_size)
 	{ 
