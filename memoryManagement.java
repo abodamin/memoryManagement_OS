@@ -174,9 +174,9 @@ class Action{
 	}
 
 	class Hole {
-		int base;
-		int limit;
-		int size;
+		private int base;
+		private int limit;
+		private int size;
 
 		public Hole (int base, int limit, int size) {
 			this.base = base;
