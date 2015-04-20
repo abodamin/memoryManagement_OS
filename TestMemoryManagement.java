@@ -23,7 +23,6 @@ class TestMemoryManagement {
 	/* Pre-processed Queue for Actions */
 	private static LinkedList<Segment> segmentQueue = new LinkedList<Segment>(); // Queue for Storing Info
 
-
 	public static void main(String[] args) {
         File file = new File(args[0]);
 

@@ -92,7 +92,7 @@ class MemoryManagement {
 		// Failed allocations (External Fragmentation) = 0 
 	}
 
-	class Hole {
+	public static class Hole {
 		private int base;
 		private int limit;
 		private int size;
