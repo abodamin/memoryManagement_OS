@@ -4,7 +4,7 @@
  * Programming Assignment #3
  * Operating Systems - Spring 2015
  *
- *  Input(s): .txt file of jobs
+ * Input(s): .txt file of jobs
  * Return(s): 
  */
 import java.util.*;
@@ -14,65 +14,9 @@ import java.io.FileNotFoundException;
 import java.io.*;
 
 class MemoryManagement {
-	
-	private static LinkedList<Action> actionQueue = new LinkedList<Action>(); // Queue for Storing actions related to the pid
-	
-	private static LinkedList<Integer[]> segmentQueue = new LinkedList<Integer[]>(); // Queue for Storing Info
-	private static LinkedList<Integer[]> holeQueue = new LinkedList<Integer[]>(); // Queue for Storing Info
-
-
-	public static void main(String[] args) {
-        File file = new File(args[0]);
-
-        try {
-	        Scanner sc;
-	        sc = new Scanner(file);
-        	
-	        if (sc.hasNext()){
-	        	String firstLine = sc.nextLine();
-	        	String[] memorySize_task = firstLine.split(" ");
-
-	        	/* Get the total memory size*/
-	        	int memorySize = Integer.parseInt(memorySize_task[0]);
-	        	/* 1 = segmentation, 2 = paging */
-	        	int task = Integer.parseInt(memorySize_task[2]);
-
-	        	while (sc.hasNext()){
-	        		String nextJob = sc.nextLine();
-	        		
-					// this list is : [A, size, pid, text, data, heap]
-	        		String[] newProcess_List = nextJob.split(" ");
-		        	
-	        		// Actions: A = add / D = delete / P = print
-	        		String action = newProcess_List[0];
-	        		int pid = Integer.parseInt(newProcess_List[1]);
-					
-					Action actionObject = new Action(action, pid);
-					actionQueue.add(actionObject);
-
-					int text = Integer.parseInt(newProcess_List[4]);
-					int data = Integer.parseInt(newProcess_List[5]);
-					int heap = Integer.parseInt(newProcess_List[6]);
-					
-					Integer[] dataSegment = new Integer[]{data, pid};
-					segmentQueue.add(dataSegment);
-					
-					Integer[] textSegment = new Integer[]{text, pid};
-					segmentQueue.add(textSegment);
-					
-					Integer[] heapSegment = new Integer[]{heap, pid};
-					segmentQueue.add(heapSegment);
-		        	
-	        	} // EOWhile
-	        } // EOIf
-	        sc.close();
-        } catch (FileNotFoundException e) {
-        	e.printStackTrace();
-        }
-
-    } //EOmain
-
     
+	private static LinkedList<Hole> holeQueue = new LinkedList<Hole>(); // Queue for Storing Info
+
 	public MemoryManagement(int bytes, int policy) 
 	{ 
 		// intialize memory with these many bytes.
@@ -134,8 +78,8 @@ class MemoryManagement {
 
 	public int deallocate(int pid)
 	{ 
-		//deallocate memory allocated to this process
-		// return 1 if successful, -1 otherwise with an error message 
+		// deallocate memory allocated to this process
+		// return 1 if successful, -1 otherwise with an error message
 	}
 
 	public void printMemoryState()
@@ -189,63 +133,29 @@ class MemoryManagement {
 		// Failed allocations (External Fragmentation) = 0 
 	}
 
-} // EOF
-
-class Action{
-
-	private String action;
-	private int pid;
-
-	/* Process Constructor */
-	public Action(String action, int pid) { 
-		this.action = action;
-		this.pid = pid;
-	}
-
-	/* action getter */
-	public String getAction() { 
-		return action;
-	}
-
-	/* pid getter */
-	public int getPid() { 
-		return pid;
-	}
-
-	class Hole {
+	public static class Hole {
 		private int base;
 		private int limit;
 		private int size;
 
+		/* Hole constructor */
 		public Hole (int base, int limit, int size) {
 			this.base = base;
 			this.limit = limit;
 			this.size = size;
 		}
 
-		public int getBase() {
-			return this.base;
-		}
+		public int getBase() { return base; }
 
-		public int getLimit() {
-			return this.limit;
-		}
+		public int getLimit() { return limit; }
 
-		public int getSize() {
-			return this.size();
-		}
+		public int getSize() { return size; }
 
-		public void setBase(int base) {
-			this.base = base;
-		}	
+		public void setBase(int base) { this.base = base; }
 
-		public void setLimit(int limit) {
-			this.base = base;
-		}	
+		public void setLimit(int limit) { this.base = base; }	
 
-		public void setSize(int size) {
-			this.size = size;
-		}	
-	}
+		public void setSize(int size) { this.size = size; }	
+	} //EOHole
 
-} // EOProcess
+} // EOF
