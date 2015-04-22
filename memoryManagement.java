@@ -20,6 +20,9 @@ class MemoryManagement {
 	public MemoryManagement(int bytes, int policy) 
 	{ 
 		// intialize memory with these many bytes.
+
+		holeQueue.add(new Hole(0, bytes-1, ))
+
 		// Use segmentation if policy==0, paging if policy==1 
 	}
 
@@ -136,13 +139,11 @@ class MemoryManagement {
 	public static class Hole {
 		private int base;
 		private int limit;
-		private int size;
 
 		/* Hole constructor */
-		public Hole (int base, int limit, int size) {
+		public Hole (int base, int limit) {
 			this.base = base;
 			this.limit = limit;
-			this.size = size;
 		}
 
 		public int getBase() { return base; }
@@ -155,7 +156,10 @@ class MemoryManagement {
 
 		public void setLimit(int limit) { this.base = base; }	
 
-		public void setSize(int size) { this.size = size; }	
+		public int getSize() { 
+			return limit - base;
+		}	
+		
 	} //EOHole
 
 } // EOF
