@@ -17,11 +17,12 @@ class TestMemoryManagement {
 	/* Pre-processed Queue for Segments */
 	private static LinkedList<Action> actionQueue = new LinkedList<Action>(); 
 
+	private static LinkedList<Process> processQueue = new LinkedList<Page>();
 	/* Pre-processed Queue for pages */
-	private static LinkedList<Page> pageQueue = new LinkedList<Page>();
+	//private static LinkedList<Page> pageQueue = new LinkedList<Page>();
 
 	/* Pre-processed Queue for Actions */
-	private static LinkedList<Segment> segmentQueue = new LinkedList<Segment>(); // Queue for Storing Info
+	//private static LinkedList<Segment> segmentQueue = new LinkedList<Segment>(); // Queue for Storing Info
 
 	public static void main(String[] args) {
         File file = new File(args[0]);
@@ -67,7 +68,7 @@ class TestMemoryManagement {
 			        		actionQueue.add(actionObject);
 
 			        	} else { // You must be printing
-			        		Action actionObject = new Action(action, 100);
+			        		Action actionObject = new Action(action, inf);
 			        	}
 	        		} // EOWhile
 	        	} else if (task == 1){ // If PAGING pre-preprocess the list, pages = 32 bytes
@@ -104,13 +105,16 @@ class TestMemoryManagement {
 			        		Action actionObject = new Action(action, Integer.parseInt(newProcess_List[1])); // create delete action w/ pid
 			        		actionQueue.add(actionObject);
 			        	} else { // You must be printing
-			        		Action actionObject = new Action(action, 100);
+			        		Action actionObject = new Action(action);
 			        	}
 	        		} // EOWhile
 	        	} else {
 	        		System.out.println("You have not provided the a valid task");
 	        	} // EO if/elif/else
 	        } // EOIf
+
+	        MemoryManagement newManage = new MemoryManagement(memorySize, task, process)
+
 	        sc.close(); // close your scanner
 
 
@@ -121,18 +125,18 @@ class TestMemoryManagement {
     } //EOmain
 
 
-	/** Page Class 
+	/** Process Class 
 	  * Creates a page object / keeps track of wasted space (by the size)
 	  *
 	  * inputs: pageSize (how much of the page is actually being used), pid (the process ID)
 	  *         takesFulLSpace (boolean if it takes up all of 32 or not)
 	  **/
-	public static class Page{
+	public static class Process{
 		private int pageSize;
 		private int pid;
 
 		// takes SIZE to potentially keep track of wasted space
-		public Page(int pageSize, int pid) { 
+		public Process(int pageSize, int pid) { 
 			this.pageSize = pageSize;
 			this.pid = pid;
 		} 
@@ -141,43 +145,6 @@ class TestMemoryManagement {
 		public int getPid() { return pid; }
 	} //EOPage
 
-	/* Segment Class
-	 * creates a new segment object
-	 *
-	 * input: segmentSize, pid (The Process ID)
-	 */
-	public static class Segment{
-		private int segmentSize;
-		private int pid;
-		
-		/* Page Constructor */
-		public Segment(int segmentSize, int pid) { 
-			this.segmentSize = segmentSize;
-			this.pid = pid;
-		} 
 
-		public int getSize(){ return segmentSize; }
-		public int getPid(){ return pid; }
-	} // EOSegment
-
-	/* Action Class
-	 * creates a new action object
-	 *
-	 * input: Action (A/P/D), pid (The Process ID)
-	 */
-	public static class Action{
-		private String action;
-		private int pid;
-
-		/* Action Constructor */
-		public Action(String action, int pid) { 
-			this.action = action;
-			this.pid = pid;
-		}
-
-		public String getAction() { return action; }
-		public int getPid() { return pid; }
-
-	} // EOAction
 
 } // EOF

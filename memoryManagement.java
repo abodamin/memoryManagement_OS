@@ -15,13 +15,19 @@ import java.io.*;
 
 class MemoryManagement {
     
+    int bytes;
+    int policy;
+
 	private static LinkedList<Hole> holeQueue = new LinkedList<Hole>(); // Queue for Storing Info
 
-	public MemoryManagement(int bytes, int policy) 
-	{ 
-		// intialize memory with these many bytes.
 
-		holeQueue.add(new Hole(0, bytes-1, ))
+	public MemoryManagement(int bytes, int policy, LinkedList<List[]> processInformation) { 
+		self.bytes = bytes
+		self.policy = policy
+		self.process = process
+
+		// intialize memory with these many bytes.
+		holeQueue.add(new Hole(0, bytes-1))
 
 		// Use segmentation if policy==0, paging if policy==1 
 	}
@@ -62,8 +68,6 @@ class MemoryManagement {
 	public void addHole(Hole hole) {
 		// add hole
 		// sort
-
-
 	}
 
 
@@ -161,5 +165,67 @@ class MemoryManagement {
 		}	
 		
 	} //EOHole
+
+	/*
+	/** Page Class 
+	  * Creates a page object / keeps track of wasted space (by the size)
+	  *
+	  * inputs: pageSize (how much of the page is actually being used), pid (the process ID)
+	  *         takesFulLSpace (boolean if it takes up all of 32 or not)
+	  **/
+	public static class Page{
+		private int pageSize;
+		private int pid;
+
+		// takes SIZE to potentially keep track of wasted space
+		public Page(int pageSize, int pid) { 
+			this.pageSize = pageSize;
+			this.pid = pid;
+		} 
+
+		public int getPageSize() { return pageSize; }
+		public int getPid() { return pid; }
+	} //EOPage
+
+	/* Segment Class
+	 * creates a new segment object
+	 *
+	 * input: segmentSize, pid (The Process ID)
+	 */
+	public static class Segment{
+		private int segmentSize;
+		private int pid;
+		
+		public Segment(int segmentSize, int pid) { 
+			this.segmentSize = segmentSize;
+			this.pid = pid;
+		} 
+
+		public int getSize(){ return segmentSize; }
+		public int getPid(){ return pid; }
+	} // EOSegment
+
+	/* Action Class
+	 * creates a new action object
+	 *
+	 * input: Action (A/P/D), pid (The Process ID)
+	 */
+	public static class Action{
+		private String action;
+		private int pid;
+
+		public Action(String action, int pid) { 
+			this.action = action;
+			this.pid = pid;
+		}
+
+		public Action(String action){
+			this.action = action;
+		}
+
+		public String getAction() { return action; }
+		public int getPid() { return pid; }
+
+	} // EOAction
 
 } // EOF
