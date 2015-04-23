@@ -17,31 +17,63 @@ class MemoryManagement {
     
     int bytes;
     int policy;
+    LinkedList<Process> processQueue;
+    int failedAllocations_noMemory = 0;
+    int failedAllocations_externalFragmentation = 0;
 
-	private static LinkedList<Hole> holeQueue = new LinkedList<Hole>(); // Queue for Storing Info
+	private LinkedList<Hole> holeList = new LinkedList<Hole>();
+	private ________ ram = ___list_____;
 
-
-	public MemoryManagement(int bytes, int policy, LinkedList<List[]> processInformation) { 
-		self.bytes = bytes
-		self.policy = policy
-		self.process = process
+	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
+		this.bytes = bytes
+		this.policy = policy
+		this.processQueue = processQueue;
 
 		// intialize memory with these many bytes.
-		holeQueue.add(new Hole(0, bytes-1))
+		holeList.add(new Hole(0, bytes-1))
 
-		// Use segmentation if policy==0, paging if policy==1 
-	}
+		public void run() {
+			// Use segmentation if policy==0, paging if policy==1
+			for (Process process: processQueue) {
+				// process info: A, size, pid, text, data, heap
+				switch (process.getAction()) {
+					case "A": // add process
+							switch (policy) {
+								case 0:	// segmentation
+										
+										int Array[] segmentList = process.getSegments();
+										int pid = process.getPid();
+										boolean inserted;
+										
+										// try to insert every segment
+										for (int segment: segmentList) {
+											inserted = allocate(pid, segment);
 
-	/**
-	*	Tries to insert a segment into RAM.
-	*	
-	*	@param	 segment 	
-	*	@Return  whether or not segment could be inserted
-	*/
-	public boolean insertSegment(Segment segment) {
-		// try to find a hole bigger than segment
-		// if none, return false
-		// if found, call insertSegmentInHole
+											// deallocate process if segment doesn't fit
+											if (inserted == false) {
+												deallocate(pid);
+												break;
+											}
+										}
+										break;
+								case 1:	// paging
+										break;
+							}
+							break;
+					
+					case "D": // delete process
+							deallocate(pid);
+							break;
+					
+					case "P": // print 
+							printMemoryState();
+							break;
+					default:
+							break;
+				}
+			}
+		}
+		
 	}
 
 	/**
@@ -51,7 +83,7 @@ class MemoryManagement {
 	*	@param	 segment 	
 	*	@param	 hole  
 	*/
-	public void insertSegmentInHole(Segment segment, Hole hole) {
+	public void insertBlockInHole(int bytes, Hole hole) {
 		// remove hole from list
 		// insert segment into hole
 		// use leftover space to create new hole
@@ -70,8 +102,13 @@ class MemoryManagement {
 		// sort
 	}
 
-
-	public int allocate(int bytes, int pid, int text_size, int data_size, int heap_size)
+	/**
+	*	Tries to insert a segment or page into RAM.
+	*	
+	*	@param	 size of segment or page in bytes	
+	*	@Return  whether or not segment could be inserted
+	*/
+	public int allocate(int pid, int bytes)
 	{ 
 		//allocate this many bytes to the process with this id 
 		//assume that each pid is unique to a process 
@@ -81,6 +118,11 @@ class MemoryManagement {
 		//Return 1 if successful 
 		//Return -1 if unsuccessful 
 		//Print an error indicating whether there wasn't sufficient memory or whether you 	//..ran into external fragmentation
+		
+		// try to find a hole bigger than block
+		// if none, return false
+		// if found, call insertSegmentInHole
+
 	}
 
 	public int deallocate(int pid)
@@ -114,6 +156,9 @@ class MemoryManagement {
 		// Total Internal Fragmentation = 10 bytes
 		// Failed allocations (No memory) = 2
 		// Failed allocations (External Fragmentation) = 7 
+
+
+
 
 		// PAGING Example:
 		// Memory size = 1024 bytes, total pages = 32
@@ -193,10 +238,12 @@ class MemoryManagement {
 	 * input: segmentSize, pid (The Process ID)
 	 */
 	public static class Segment{
+		private int pid;		
 		private int segmentSize;
-		private int pid;
+		private int base;
+		private int limit;
 		
-		public Segment(int segmentSize, int pid) { 
+		public Segment(int pid, int segmentSize) { 
 			this.segmentSize = segmentSize;
 			this.pid = pid;
 		} 
@@ -214,7 +261,7 @@ class MemoryManagement {
 		private String action;
 		private int pid;
 
-		public Action(String action, int pid) { 
+		public Action(String pid, int action) { 
 			this.action = action;
 			this.pid = pid;
 		}
