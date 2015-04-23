@@ -201,6 +201,55 @@ class MemoryManagement {
 		// print out current state of memory
 		// the output will depend on the memory allocator being used.
 
+		switch (policy) {
+			case 0:	// segmentation
+				int allocatedSpace = 0;
+				for(Segment segment: segmentList){
+					allocatedSpace += segment.getSize();
+				}
+
+				int freeSpace = 0;
+				for(Hole hole: holeList){
+					freeSpace += hole.getSize();
+				}
+
+				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
+				System.out.println("There are currently "+hoeList.size()+" holes and "+segmentList.size()+" active processes.");
+				System.out.println("Hole List:");
+				for(int i = 0; i < holeList.size(); i++){
+					Hole hole = holeList[i];
+					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
+				}
+
+				System.out.println("Process List:")
+				for(int i = 0; i< segmentList.size(); i++){
+					Segment segment = segmentList[i];
+					// process id=34, size & allocation=95
+					System.out.println("Process ID "+segment.getPid()+"size & allocation = "+ segment.getSize());
+
+
+				}
+
+
+				break;
+			case 1:	// paging
+				int allocatedSpace = 0;
+				for(Segment page: pageList){
+					allocatedSpace += page.getSize();
+				}
+
+				int freeSpace = 0;
+				for(Hole hole: holeList){
+					freeSpace += hole.getSize();
+				}
+
+				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
+				System.out.println("There are currently "+hoeList.size()+" holes and "+pageList.size()+" active processes.");
+
+
+
+				break;
+		} //EOSwitch
 
 		// SEGMENTATION Example:
 		// Memory size = 1024 bytes, allocated bytes = 179, free = 845
@@ -211,10 +260,11 @@ class MemoryManagement {
 		// ...
 		//
 		// Process list:
-		// process id=34, size=95 allocation=95
+		// process id=34, size & allocation=95
 		// 	text start=202, size=25
 		// 	data start=356, size=16
 		// 	heap start=587, size=54
+		//
 		// process id=39, size=55 allocation=65
 		// ...
 		//
@@ -261,15 +311,10 @@ class MemoryManagement {
 		}
 
 		public int getBase() { return base; }
-
 		public int getLimit() { return limit; }
-
 		public int getSize() { return size; }
-
 		public void setBase(int base) { this.base = base; }
-
 		public void setLimit(int limit) { this.base = base; }	
-
 		public int getSize() { 
 			return limit - base;
 		}	
@@ -307,14 +352,17 @@ class MemoryManagement {
 		private int segmentSize;
 		private int base;
 		private int limit;
+		private String type;
 		
-		public Segment(int pid, int segmentSize, int base, int limit) { 
+		public Segment( int pid, String type, int segmentSize, int base, int limit) { 
+			this.type = type;
 			this.base = base;
 			this.limit = limit;
 			this.segmentSize = segmentSize;
 			this.pid = pid;
 		} 
 
+		public String getType(){ return type; }
 		public int getSize(){ return segmentSize; }
 		public int getPid(){ return pid; }
 		public int getBase(){ return base; }
