@@ -11,6 +11,11 @@ class Process {
 	private int dataSegment;
 	private int heapSegment;
 
+	/* Process Constructors:
+	 *    1) For when you are printing
+	 *    1) For when you are deleting something
+	 *    3) For when you are adding something
+	 */
 	public Process(String action) { 
 		this.action = action;
 	}
@@ -28,12 +33,21 @@ class Process {
 		this.heapSegment = heapSegment;
 	}
 
+	// Getters for all of the variables
 	public String getAction() { return action; }
 	public int getPid() { return pid; }
 	public int getText() { return textSegment; }
 	public int getData() { return dataSegment; }
 	public int getHeap() { return heapSegment; }
+	
 
+	// Returns a segment with all the appropriate segment information
+	public int[] getSegment() { 
+		int segmentArray[] = {textSegment, dataSegment, heapSegment};
+		return segmentArray; 
+	}
+
+	// Returns the TOTAL size of all the segments
 	public int getSize() { return textSegment+dataSegment+heapSegment; }
 
 } // EOAction
