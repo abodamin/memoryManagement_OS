@@ -26,14 +26,6 @@ class MemoryManagement {
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 	private ArrayList<Page> pageList = new ArrayList<Page>();
 
-	/*
-	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
-<<<<<<< HEAD
-		this.bytes = bytes
-		this.policy = policy
-		this.processQueue = processQueue;
-	}*/
-
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		// intialize memory - base 0, limit GivenBytes
 		holeList.add(new Hole(0, bytes-1))
@@ -187,23 +179,30 @@ class MemoryManagement {
 	
 		// remove holes to merge and add hole
 		int iHoleInsert;
-		if (iHoleAfter != null) {
-			iHoleInsert = iHoleAfter;
-			holeList_byOrder.remove(iHoleAfter);
-
-		if (iHoleBefore != null) {
-			iHoleInsert = iHoleBefore;
-			holeList_byOrder.remove(iHoleBefore);
+		if (iHoleAfter != null && iHoleBefore != null) {
 		
-		} 
+			if (iHoleAfter != null) {
+				iHoleInsert = iHoleAfter;
+				holeList_byOrder.remove(iHoleAfter);
+			}
+			
+			if (iHoleBefore != null) {
+				iHoleInsert = iHoleBefore;
+				holeList_byOrder.remove(iHoleBefore);
+			
+			} 
 
-		if (holeIndex)
-		// add hole to end of list of ordered holes
-		holeList_byOrder.add(hole);
+			if (iHoleInsert == holeList_byOrder.size()-1) {
+				holeList_byOrder.insert(iHoleInsert, hole);
+			}
+		} else {
+			// add hole to end of list of ordered holes
+			holeList_byOrder.add(hole);
+		}
+
 		// add hole to end of list of size ordered holes
 		addHoleToSortedSizeList(hole);
-	
-
+		}
 	}
 
 	/**
