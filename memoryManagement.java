@@ -25,19 +25,19 @@ class MemoryManagement {
 	private ________ ram = ___list_____;
 
 
+	/*
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		this.bytes = bytes
 		this.policy = policy
 		this.processQueue = processQueue;
+	}*/
 
+	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
+		this.bytes = bytes
+		this.policy = policy
+		this.process = process
 
-	public MemoryManagement(int bytes, int policy, LinkedList<Process> processInformation) { 
-		self.bytes = bytes
-		self.policy = policy
-		self.process = process
-
-
-		// intialize memory with these many bytes.
+		// intialize memory - base 0, limit GivenBytes
 		holeList.add(new Hole(0, bytes-1))
 
 		public void run() {
@@ -48,24 +48,36 @@ class MemoryManagement {
 					case "A": // add process
 							switch (policy) {
 								case 0:	// segmentation
-										
-										int Array[] segmentList = process.getSegments();
-										int pid = process.getPid();
-										boolean inserted;
-										
-										// try to insert every segment
-										for (int segment: segmentList) {
-											inserted = allocate(pid, segment);
+									int Array[] segmentList = process.getSegments();
+									int pid = process.getPid();
+									boolean inserted;
+									
+									// try to insert every segment
+									for (int segment: segmentList) {
+										inserted = allocate(pid, segment);
 
-											// deallocate process if segment doesn't fit
-											if (inserted == false) {
-												deallocate(pid);
-												break;
-											}
+										// deallocate process if segment doesn't fit
+										if (inserted == false) {
+											deallocate(pid);
+											break;
 										}
-										break;
+									}
+									break;
 								case 1:	// paging
-										break;
+									
+									int totalSize = process.getSize()
+									int pid = process.getPid();
+									
+									// Get Remainder
+									if ((totalSize%3) > 0){
+										int remainder = (totalSize%3);
+										Page newPage = new Page(pid, remainder);
+									}
+
+									int Array[] pageList = process.
+									int pid = process.getPid();
+
+									break;
 							}
 							break;
 					
@@ -76,11 +88,12 @@ class MemoryManagement {
 					case "P": // print 
 							printMemoryState();
 							break;
+
 					default:
 							break;
-				}
-			}
-		}
+				} // EOswitch
+			} // EOFor
+		} // EORun
 		
 	}
 
@@ -122,6 +135,7 @@ class MemoryManagement {
 		//assume that each pid is unique to a process 
 		//if using the Segmentation allocator: size of each segment is: text_size, 		//..data_size, and heap_size.
 		//Verify that text_size + data_size + heap_size = bytes
+		
 		//If using the paging allocator, simply ignore the segment size variables 
 		//Return 1 if successful 
 		//Return -1 if unsuccessful 
@@ -231,7 +245,7 @@ class MemoryManagement {
 		private int pid;
 
 		// takes SIZE to potentially keep track of wasted space
-		public Page(int pageSize, int pid) { 
+		public Page(int pid, int pageSize) { 
 			this.pageSize = pageSize;
 			this.pid = pid;
 		} 
