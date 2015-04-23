@@ -34,4 +34,6 @@ class Process {
 	public int getData() { return dataSegment; }
 	public int getHeap() { return heapSegment; }
 
+	public int getSize() { return textSegment+dataSegment+heapSegment; }
+
 } // EOAction
