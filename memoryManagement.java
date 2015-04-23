@@ -95,14 +95,75 @@ class MemoryManagement {
 
 	}
 
+	public void addHoleToSortedSizeList(Hole hole, int size) {
+
+	}
+
 	/**
-	*	Inserts hole into list of holes
+	*	Inserts hole into both list of holes
+	* 	lists: sorted by hole size, sorted by hole order
 	*		
 	*	@param	 hole  
 	*/
 	public void addHole(Hole hole) {
-		// add hole
-		// sort
+		// check if hole needs to be combined with other hole
+		int holeBase = hole.getBase();
+		int holeLimit = hole.getLimit();
+
+
+		// place holder for merged hole info
+		int iHoleBefore = null;
+		int iHoleAfter = null;
+
+		for (int i = 0; i < holeList_byOrder.size(); i++) {
+			Hole checkHole = holeList_ByOrder.get(i);
+			int checkHoleBase = checkHole.getBase();
+			int checkHoleLimit = checkHole.getLimit();
+			
+			// check if hole combined in the beginning
+			if (holeBase == checkHoleLimit + 1) {
+				// merge hole to end of first hole
+				iHoleBefore = i;
+				hole.setBase(checkHoleBase);
+
+				if ((i+1)<holeList_byOrder.size()) {
+					// next hole exists
+					int checkHoleBase = holeList_byOrder.get(i+1).getBase();
+					
+					if (holeLimit == checkHoleBase - 1) {
+						// merge hole after previous hole
+						iHoleAfter = i;
+						hole.setLimit(checkHole.getLimit());
+					}
+				}
+				break;
+			}
+			else if (holeLimit == checkHoleBase - 1) {
+				int iHoleAfter = i;
+				hole.setLimit(checkHoleLimit);
+				break;
+			}
+		}
+	
+		// remove holes to merge and add hole
+		int iHoleInsert;
+		if (iHoleAfter != null) {
+			iHoleInsert = iHoleAfter;
+			holeList_byOrder.remove(iHoleAfter);
+
+		if (iHoleBefore != null) {
+			iHoleInsert = iHoleBefore;
+			holeList_byOrder.remove(iHoleBefore);
+		
+		} 
+
+		if (holeIndex)
+		// add hole to end of list of ordered holes
+		holeList_byOrder.add(hole);
+		// add hole to end of list of size ordered holes
+		addHoleToSortedSizeList(hole);
+	
+
 	}
 
 	/**
