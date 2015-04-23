@@ -21,7 +21,7 @@ class MemoryManagement {
 	private static LinkedList<Hole> holeQueue = new LinkedList<Hole>(); // Queue for Storing Info
 
 
-	public MemoryManagement(int bytes, int policy, LinkedList<List[]> processInformation) { 
+	public MemoryManagement(int bytes, int policy, LinkedList<Process> processInformation) { 
 		self.bytes = bytes
 		self.policy = policy
 		self.process = process
