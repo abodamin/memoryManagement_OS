@@ -24,10 +24,18 @@ class MemoryManagement {
 	private LinkedList<Hole> holeList = new LinkedList<Hole>();
 	private ________ ram = ___list_____;
 
+
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		this.bytes = bytes
 		this.policy = policy
 		this.processQueue = processQueue;
+
+
+	public MemoryManagement(int bytes, int policy, LinkedList<Process> processInformation) { 
+		self.bytes = bytes
+		self.policy = policy
+		self.process = process
+
 
 		// intialize memory with these many bytes.
 		holeList.add(new Hole(0, bytes-1))
