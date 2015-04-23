@@ -1,4 +1,3 @@
-
 /*
  * Giovanna Diaz, Alice Yang
  * Programming Assignment #3
@@ -28,7 +27,6 @@ class MemoryManagement {
 
 	/*
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
-<<<<<<< HEAD
 		this.bytes = bytes
 		this.policy = policy
 		this.processQueue = processQueue;
@@ -264,6 +262,25 @@ class MemoryManagement {
 
 		switch (policy) {
 			case 0:	// segmentation
+				// Memory size = 1024 bytes, allocated bytes = 179, free = 845
+				// There are currently 10 holes and 3 active process
+				//
+				// Hole list:
+				// 	hole 1: start location = 0, size = 202
+				// ...
+				//
+				// Process list:
+				// process id=34, size & allocation=95
+				// 	text start=202, size=25
+				// 	data start=356, size=16
+				// 	heap start=587, size=54
+				//
+				// process id=39, size=55 allocation=65
+				// ...
+				//
+				// Total Internal Fragmentation = 10 bytes
+				// Failed allocations (No memory) = 2
+				// Failed allocations (External Fragmentation) = 7 
 				int allocatedSpace = 0;
 				for(Segment segment: segmentList){
 					allocatedSpace += segment.getSize();
@@ -285,15 +302,38 @@ class MemoryManagement {
 				System.out.println("Process List:")
 				for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList[i];
-					// process id=34, size & allocation=95
-					System.out.println("Process ID "+segment.getPid()+"size & allocation = "+ segment.getSize());
-
-
+					// pid 3, text, start: 234, size: 2305
+					System.out.println("Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
 				}
-
-
+				
+				System.out.prinln("Total Internal Fragmentation = ");
+				System.out.prinln("Failed allocations (No memory) = ");
+				System.out.prinln("Failed allocations (External Fragmentation) = ");
+				
 				break;
 			case 1:	// paging
+				// Memory size = 1024 bytes, total pages = 32
+				// allocated pages = 6, free pages = 26
+				// There are currently 3 active process
+				// Free Page list:
+				// 	2,6,7,8,9,10,11,12...
+				//
+				// Process list:
+				// Process id=34, size=95 bytes, number of pages=3
+				// 	Virt Page 0 -> Phys Page 0 used: 32 bytes
+				// 	Virt Page 1 -> Phys Page 3 used: 32 bytes
+				// 	Virt Page 2 -> Phys Page 4 used: 31 bytes
+				//
+				// Process id=39, size=55 bytes, number of pages=2
+				// 	Virt Page 0 -> Phys Page 1 used: 32 bytes
+				// 	Virt Page 1 -> Phys Page 13 used: 23 bytes
+				//
+				// Process id=46, size=29 bytes, number of pages=1
+				// 	Virt Page 0 -> Phys Page 5 used: 29 bytes 
+				//
+				// Total Internal Fragmentation = 13 bytes
+				// Failed allocations (No memory) = 2
+				// Failed allocations (External Fragmentation) = 0 
 				int allocatedSpace = 0;
 				for(Segment page: pageList){
 					allocatedSpace += page.getSize();
@@ -304,61 +344,13 @@ class MemoryManagement {
 					freeSpace += hole.getSize();
 				}
 
-				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
-				System.out.println("There are currently "+hoeList.size()+" holes and "+pageList.size()+" active processes.");
-
-
+				System.out.println("Memory size = "+bytes+", total pages = "+(bytes/32));
+				int freePages = (bytes/30) - pageList.size();
+				System.out.println("Allocated pages = "+pageList.size()+", free pages = "+freePages);
 
 				break;
 		} //EOSwitch
 
-		// SEGMENTATION Example:
-		// Memory size = 1024 bytes, allocated bytes = 179, free = 845
-		// There are currently 10 holes and 3 active process
-		//
-		// Hole list:
-		// 	hole 1: start location = 0, size = 202
-		// ...
-		//
-		// Process list:
-		// process id=34, size & allocation=95
-		// 	text start=202, size=25
-		// 	data start=356, size=16
-		// 	heap start=587, size=54
-		//
-		// process id=39, size=55 allocation=65
-		// ...
-		//
-		// Total Internal Fragmentation = 10 bytes
-		// Failed allocations (No memory) = 2
-		// Failed allocations (External Fragmentation) = 7 
-
-
-
-
-		// PAGING Example:
-		// Memory size = 1024 bytes, total pages = 32
-		// allocated pages = 6, free pages = 26
-		// There are currently 3 active process
-		// Free Page list:
-		// 	2,6,7,8,9,10,11,12...
-		//
-		// Process list:
-		// Process id=34, size=95 bytes, number of pages=3
-		// 	Virt Page 0 -> Phys Page 0 used: 32 bytes
-		// 	Virt Page 1 -> Phys Page 3 used: 32 bytes
-		// 	Virt Page 2 -> Phys Page 4 used: 31 bytes
-		//
-		// Process id=39, size=55 bytes, number of pages=2
-		// 	Virt Page 0 -> Phys Page 1 used: 32 bytes
-		// 	Virt Page 1 -> Phys Page 13 used: 23 bytes
-		//
-		// Process id=46, size=29 bytes, number of pages=1
-		// 	Virt Page 0 -> Phys Page 5 used: 29 bytes 
-		//
-		// Total Internal Fragmentation = 13 bytes
-		// Failed allocations (No memory) = 2
-		// Failed allocations (External Fragmentation) = 0 
 	}
 
 	public static class Hole {
@@ -376,16 +368,12 @@ class MemoryManagement {
 		public int getSize() { return size; }
 		public void setBase(int base) { this.base = base; }
 		public void setLimit(int limit) { this.base = base; }	
-		public int getSize() { 
-			return limit - base;
-		}	
-		
+		public int getSize() { return limit - base; }
 	} //EOHole
 
 	/*
 	/** Page Class 
 	  * Creates a page object / keeps track of wasted space (by the size)
-	  *
 	  * inputs: pageSize (how much of the page is actually being used), pid (the process ID)
 	  *         takesFulLSpace (boolean if it takes up all of 32 or not)
 	  **/
@@ -405,7 +393,6 @@ class MemoryManagement {
 
 	/* Segment Class
 	 * creates a new segment object
-	 *
 	 * input: segmentSize, pid (The Process ID)
 	 */
 	public static class Segment{
@@ -432,7 +419,6 @@ class MemoryManagement {
 
 	/* Action Class
 	 * creates a new action object
-	 *
 	 * input: Action (A/P/D), pid (The Process ID)
 	 */
 	public static class Action{
@@ -450,7 +436,6 @@ class MemoryManagement {
 
 		public String getAction() { return action; }
 		public int getPid() { return pid; }
-
 	} // EOAction
 
 } // EOF
