@@ -21,12 +21,14 @@ class MemoryManagement {
     int failedAllocations_noMemory = 0;
     int failedAllocations_externalFragmentation = 0;
 
-	private LinkedList<Hole> holeList = new LinkedList<Hole>();
-	private ________ ram = ___list_____;
-
+	private LinkedList<Hole> holeList_byOrder = new LinkedList<Hole>();
+	private LinkedList<Hole> holeList_bySize = new LinkedList<Hole>();
+	private LinkedList<Segment> segmentList = new LinkedList<Segment>();
+	private LinkedList<Page> pageList = new LinkedList<Page>();
 
 	/*
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
+<<<<<<< HEAD
 		this.bytes = bytes
 		this.policy = policy
 		this.processQueue = processQueue;
@@ -39,6 +41,13 @@ class MemoryManagement {
 
 		// intialize memory - base 0, limit GivenBytes
 		holeList.add(new Hole(0, bytes-1))
+		this.bytes = bytes;
+		this.policy = policy;
+		this.process = processQueue;
+
+		// intialize memory with these many bytes.
+		holeList_byOrder.add(new Hole(0, bytes-1));
+		holeList_bySize.add(new Hole(0, bytes-1));
 
 		public void run() {
 			// Use segmentation if policy==0, paging if policy==1
