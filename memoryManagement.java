@@ -21,12 +21,22 @@ class MemoryManagement {
     int failedAllocations_noMemory = 0;
     int failedAllocations_externalFragmentation = 0;
 
-	private LinkedList<Hole> holeList_byOrder = new LinkedList<Hole>();
-	private LinkedList<Hole> holeList_bySize = new LinkedList<Hole>();
-	private LinkedList<Segment> segmentList = new LinkedList<Segment>();
-	private LinkedList<Page> pageList = new LinkedList<Page>();
+	private ArrayList<Hole> holeList_byOrder = new ArrayList<Hole>();
+	private ArrayList<Hole> holeList_bySize = new ArrayList<Hole>();
+	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
+	private ArrayList<Page> pageList = new ArrayList<Page>();
+
+	/*
+	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
+<<<<<<< HEAD
+		this.bytes = bytes
+		this.policy = policy
+		this.processQueue = processQueue;
+	}*/
 
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
+		// intialize memory - base 0, limit GivenBytes
+		holeList.add(new Hole(0, bytes-1))
 		this.bytes = bytes;
 		this.policy = policy;
 		this.process = processQueue;
@@ -43,24 +53,53 @@ class MemoryManagement {
 					case "A": // add process
 							switch (policy) {
 								case 0:	// segmentation
-										
-										int Array[] segmentList = process.getSegments();
-										int pid = process.getPid();
-										boolean inserted;
-										
-										// try to insert every segment
-										for (int segment: segmentList) {
-											inserted = allocate(pid, segment);
+									int Array[] segmentList = process.getSegments();
+									int pid = process.getPid();
+									boolean inserted;
+									
+									// try to insert every segment
+									for (int segment: segmentList) {
+										inserted = allocate(pid, segment);
 
-											// deallocate process if segment doesn't fit
-											if (inserted == false) {
-												deallocate(pid);
-												break;
-											}
+										// deallocate process if segment doesn't fit, you're out of RAM
+										if (inserted == false) {
+											deallocate(pid);
+											break;
 										}
-										break;
+									}
+									break;
 								case 1:	// paging
-										break;
+									int pageSize = 32
+									int totalSize = process.getSize()
+									int pid = process.getPid();
+									boolean inserted;
+									
+									int remainder = (totalSize%3);
+
+									// Get Remainder
+									if (remainder > 0){
+										inserted = allocate(pid, remainder);
+										
+										// IF the page doesn't fit, then you're out of RAM
+										if (inserted == false)){
+											deallocate(pid);
+											break;
+										} //EOif
+									}//EOif
+
+									int pages = (totalSize - remainder)/pageSize
+									// Get rest of pages
+									for (int i; i < pages; i++ ){
+										inserted = allocate(pid, pageSize);
+										// IF the page doesn't fit, then you're out of RAM
+										if (inserted == false)){
+											deallocate(pid);
+											break;
+										} //EOif
+									} //EOfor
+
+									break;
+
 							}
 							break;
 					
@@ -71,11 +110,12 @@ class MemoryManagement {
 					case "P": // print 
 							printMemoryState();
 							break;
+
 					default:
 							break;
-				}
-			}
-		}
+				} // EOswitch
+			} // EOFor
+		} // EORun
 		
 	}
 
@@ -175,9 +215,10 @@ class MemoryManagement {
 	public int allocate(int pid, int bytes)
 	{ 
 		//allocate this many bytes to the process with this id 
-		//assume that each pid is unique to a process 
-		//if using the Segmentation allocator: size of each segment is: text_size, 		//..data_size, and heap_size.
-		//Verify that text_size + data_size + heap_size = bytes
+		// assume that each pid is unique to a process 
+		// if using the Segmentation allocator: size of each segment is: text_size, 		//..data_size, and heap_size.
+		// Verify that text_size + data_size + heap_size = bytes
+		
 		//If using the paging allocator, simply ignore the segment size variables 
 		//Return 1 if successful 
 		//Return -1 if unsuccessful 
@@ -189,9 +230,30 @@ class MemoryManagement {
 
 	}
 
-	public int deallocate(int pid)
-	{ 
-		// deallocate memory allocated to this process
+	public int deallocate(int deallocatePid) { 
+		/*
+		switch (policy) {
+			case 0:	// segmentation
+				for (Segment segment: segmentList){
+					int segmentPid = segment.getPid(); 	    // Get the segment pid for each segment in the list
+					if (segmentPid == deallocatePid){  									 // check to deallocate
+						Hole newHole = new Hole(segment.getBase(), segment.getLimit())   // create a hole
+						segmentList.remove(segment);   									 // remove the segment
+					} //EOif
+				}//EOif
+
+				break;
+			case 1:	// paging
+				for (Page page: pageList){
+					int pagePid = page.getPid();
+					if (pagePid == deallocatePid){
+						Hole newHole = new Hole(page.getBase(), page.getLimit());
+						pageList.remove(page);
+					} //EOif
+				} //EOif
+				break;
+		}
+		*/
 		// return 1 if successful, -1 otherwise with an error message
 	}
 
@@ -200,6 +262,55 @@ class MemoryManagement {
 		// print out current state of memory
 		// the output will depend on the memory allocator being used.
 
+		switch (policy) {
+			case 0:	// segmentation
+				int allocatedSpace = 0;
+				for(Segment segment: segmentList){
+					allocatedSpace += segment.getSize();
+				}
+
+				int freeSpace = 0;
+				for(Hole hole: holeList){
+					freeSpace += hole.getSize();
+				}
+
+				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
+				System.out.println("There are currently "+hoeList.size()+" holes and "+segmentList.size()+" active processes.");
+				System.out.println("Hole List:");
+				for(int i = 0; i < holeList.size(); i++){
+					Hole hole = holeList[i];
+					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
+				}
+
+				System.out.println("Process List:")
+				for(int i = 0; i< segmentList.size(); i++){
+					Segment segment = segmentList[i];
+					// process id=34, size & allocation=95
+					System.out.println("Process ID "+segment.getPid()+"size & allocation = "+ segment.getSize());
+
+
+				}
+
+
+				break;
+			case 1:	// paging
+				int allocatedSpace = 0;
+				for(Segment page: pageList){
+					allocatedSpace += page.getSize();
+				}
+
+				int freeSpace = 0;
+				for(Hole hole: holeList){
+					freeSpace += hole.getSize();
+				}
+
+				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
+				System.out.println("There are currently "+hoeList.size()+" holes and "+pageList.size()+" active processes.");
+
+
+
+				break;
+		} //EOSwitch
 
 		// SEGMENTATION Example:
 		// Memory size = 1024 bytes, allocated bytes = 179, free = 845
@@ -210,10 +321,11 @@ class MemoryManagement {
 		// ...
 		//
 		// Process list:
-		// process id=34, size=95 allocation=95
+		// process id=34, size & allocation=95
 		// 	text start=202, size=25
 		// 	data start=356, size=16
 		// 	heap start=587, size=54
+		//
 		// process id=39, size=55 allocation=65
 		// ...
 		//
@@ -260,15 +372,10 @@ class MemoryManagement {
 		}
 
 		public int getBase() { return base; }
-
 		public int getLimit() { return limit; }
-
 		public int getSize() { return size; }
-
 		public void setBase(int base) { this.base = base; }
-
 		public void setLimit(int limit) { this.base = base; }	
-
 		public int getSize() { 
 			return limit - base;
 		}	
@@ -287,7 +394,7 @@ class MemoryManagement {
 		private int pid;
 
 		// takes SIZE to potentially keep track of wasted space
-		public Page(int pageSize, int pid) { 
+		public Page(int pid, int pageSize) { 
 			this.pageSize = pageSize;
 			this.pid = pid;
 		} 
@@ -306,14 +413,21 @@ class MemoryManagement {
 		private int segmentSize;
 		private int base;
 		private int limit;
+		private String type;
 		
-		public Segment(int pid, int segmentSize) { 
+		public Segment( int pid, String type, int segmentSize, int base, int limit) { 
+			this.type = type;
+			this.base = base;
+			this.limit = limit;
 			this.segmentSize = segmentSize;
 			this.pid = pid;
 		} 
 
+		public String getType(){ return type; }
 		public int getSize(){ return segmentSize; }
 		public int getPid(){ return pid; }
+		public int getBase(){ return base; }
+		public int getLimit(){ return limit; }
 	} // EOSegment
 
 	/* Action Class
