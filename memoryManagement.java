@@ -109,24 +109,92 @@ class MemoryManagement {
 		} // EORun
 		
 	}
+	/**
+	*	Inserts a segment into a hole.
+	* 	If segment doesn't take up all the space,
+	* 	the leftover space becomes another hole.
+	*	
+	*	@param	 page	
+	*	@param	 hole  
+	*/
+	public void insertPage(Page page) {
+		// assign base and limit registers
+		segment.setBase(hole.getBase());
+		segment.setLimit(segment.getSize());
+
+		// add segment to list of segments
+		segmentList.add(segment);
+		
+		int leftoverSpace = hole.getSize() - segment.getSize();
+		if (leftoverSpace > 0) {
+			// use leftover space to create new hole
+			newHoleBase = hole.getBase() + segment.getSize();
+			newHoleLimit = hole.getLimit();
+			Hole newHole = new Hole(newHoleBase, newHoleLimit);
+			// add hole
+			addHole(newHole);
+		}
+	}
+
 
 	/**
-	*	Inserts segment into a hole. If segment doesn't take
-	*	up whole space
+	*	Inserts a segment into a hole.
+	* 	If segment doesn't take up all the space,
+	* 	the leftover space becomes another hole.
 	*	
 	*	@param	 segment 	
 	*	@param	 hole  
 	*/
-	public void insertBlockInHole(int bytes, Hole hole) {
-		// remove hole from list
-		// insert segment into hole
-		// use leftover space to create new hole
-		// add segment to list of segments
-		// if new hole, add to list of holes
+	public void insertSegmentInHole(Segment segment, Hole hole) {
+		// assign base and limit registers
+		segment.setBase(hole.getBase());
+		segment.setLimit(segment.getSize());
 
+		// add segment to list of segments
+		segmentList.add(segment);
+		
+		int leftoverSpace = hole.getSize() - segment.getSize();
+		if (leftoverSpace > 0) {
+			// use leftover space to create new hole
+			newHoleBase = hole.getBase() + segment.getSize();
+			newHoleLimit = hole.getLimit();
+			Hole newHole = new Hole(newHoleBase, newHoleLimit);
+			// add hole
+			addHole(newHole);
+		}
 	}
 
+	/*
+	*
+	*
+	*/
 	public void addHoleToSortedSizeList(Hole hole, int size) {
+		if (holeList_bySize.isEmpty()) {
+			holeList_bySize.add(hole);
+		} else {
+			for (int i = 0; i < holelist_bySize.size(); i++) {
+				if (size < holeList_bySize.get(i).getSize()) {
+					holeList_bySize.insert(i, hole);
+					break;
+				}
+			}
+		}
+	}
+
+	public void addSegmentToSortedList(Segment segment) {
+		if (segmentList.isEmpty()) {
+			segmentList.add(segment);
+		} else {
+			for (int i = 0; i < segmentList.size(); i++) {
+				if (size < holeList_bySize.get(i).getSize()) {
+					holeList_bySize.insert(i, hole);
+					break;
+				}
+			}
+		}
+	}
+
+	public void addPageToSortedList(Page page) {
 
 	}
 
@@ -182,20 +250,23 @@ class MemoryManagement {
 		
 			if (iHoleAfter != null) {
 				iHoleInsert = iHoleAfter;
-				holeList_byOrder.remove(iHoleAfter);
+				Hole holeAfter = holeList_byOrder.remove(iHoleAfter);
+				holeList_bySize.remove(holeAfter);
 			}
 			
 			if (iHoleBefore != null) {
 				iHoleInsert = iHoleBefore;
-				holeList_byOrder.remove(iHoleBefore);
-			
+				Hole holeBefore = holeList_byOrder.remove(iHoleBefore);
+				holeList_bySize.remove(holeBefore);
 			} 
 
 			if (iHoleInsert == holeList_byOrder.size()-1) {
-				holeList_byOrder.insert(iHoleInsert, hole);
-			}
-		} else {
+				// hole goes to end of list
+				holeList_byOrder.add(hole);
+			} else {
 			// add hole to end of list of ordered holes
+			holeList_byOrder.insert(iHoleInsert, hole);
+		} else {
 			holeList_byOrder.add(hole);
 		}
 
