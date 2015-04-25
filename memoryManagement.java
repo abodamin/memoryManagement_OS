@@ -444,11 +444,14 @@ class MemoryManagement {
 				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
 				System.out.println("There are currently "+holeList.size()+" holes and "+segmentList.size()+" active processes.");
 				System.out.println("Hole List:");
+
+				// Printing out the Holes
 				for(int i = 0; i < holeList.size(); i++){
 					Hole hole = holeList_byOrder.get(i);
 					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
 				}
 
+				// Printing out the segments for each process
 				System.out.println("Process List:");
 				for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList.get(i);
@@ -456,9 +459,16 @@ class MemoryManagement {
 					System.out.println("Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
 				}
 				
-				System.out.println("Total Internal Fragmentation = ");
-				System.out.println("Failed allocations (No memory) = ");
-				System.out.println("Failed allocations (External Fragmentation) = ");
+				// Printing out the internal fragmentation
+				int internalSegmentFrag = 0;
+				for (Segment segment: segmentList){
+					internalSegmentFrag += segment.getInternalFrag();
+				}
+				System.out.println("Total Internal Fragmentation = "+internalSegmentFrag);
+				
+				// Printing the failed allocations due to the 2 reasons
+				System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
+				System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
 				
 				break;
 			case 1:	// paging
@@ -608,6 +618,7 @@ class MemoryManagement {
 		public int getPid(){ return pid; }
 		public int getBase(){ return base; }
 		public int getLimit(){ return limit; }
+		public int getInternalFrag() {return internalFragmentation; }
 		
 		public void setBase(int base){
 			this.base = base;
