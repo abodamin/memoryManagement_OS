@@ -62,7 +62,7 @@ class MemoryManagement {
 		// Use segmentation if policy==0, paging if policy==1
 		for (Process process: processQueue) {
 			if (!hasEnoughMemory(process)) {
-				failedAllocations_externalFragmentation++
+				failedAllocations_externalFragmentation++;
 			} else { // not enough memory/space to add process
 
 				// process info: A, size, pid, text, data, heap
@@ -77,7 +77,7 @@ class MemoryManagement {
 								int pid = process.getPid();
 								boolean segmentInserted;
 								
-								for (int i = 0; i < segmentSizeList.size(); i++) {
+								for (int i = 0; i < segmentSizeList.length; i++) {
 									segmentInserted = allocate(pid, segmentTypeList[i], segmentSizeList[i]);
 
 									// deallocate process if segment doesn't fit, you're out of RAM
@@ -223,9 +223,12 @@ class MemoryManagement {
 	public void addHoleToSortedSizeList(Hole hole, int size) {
 		if (holeList_bySize.isEmpty()) {
 			holeList_bySize.add(hole);
+		} else if (hole.getSize() >= holeList_bySize.get(holeList_bySize.size()-1).getSize()) {
+			// hole is biggest hole
+			holeList_bySize.add(hole);
 		} else {
 			for (int i = 0; i < holeList_bySize.size(); i++) {
-				if (size < holeList_bySize.get(i).getSize()) {
+				if (size <= holeList_bySize.get(i).getSize()) {
 					holeList_bySize.add(i, hole);
 					break;
 				}
@@ -244,7 +247,7 @@ class MemoryManagement {
 		// if segment list is empty or segment belongs to end of list
 		if (segmentList.isEmpty()) {
 			segmentList.add(segment);
-		} else if (base > segmentList.get(segmentList.size()-1).getBase()) {
+		} else if (base >= segmentList.get(segmentList.size()-1).getBase()) {
 			// segment belongs to end of list
 			segmentList.add(segment);
 		} else {
@@ -253,7 +256,7 @@ class MemoryManagement {
 			// add segment using insert sort
 			for (int i = 0; i < segmentList.size(); i++) {
 				curBase = segmentList.get(i).getBase();
-				if (base < curBase) {
+				if (base <= curBase) {
 					segmentList.add(i, segment);
 					break;
 				}
@@ -364,26 +367,13 @@ class MemoryManagement {
 		// Segment(int pid, String type, int segmentSize)
 		Segment newSegment = new Segment(pid, type, bytes);
 		for (Hole hole: holeList_bySize) {
-			if(bytes < hole.getSize()) {
+			if(bytes <= hole.getSize()) {
 				insertSegmentInHole(newSegment, hole);
 				allocated = true;
 				break;
 			}
 		}
 		return allocated;
-				
-		// RE-SORT THE LIST!
-
-
-		//If using the paging allocator, simply ignore the segment size variables 
-		//Return 1 if successful 
-		//Return -1 if unsuccessful 
-		//Print an error indicating whether there wasn't sufficient memory or whether you 	//..ran into external fragmentation
-		
-		// try to find a hole bigger than block
-		// if none, return false
-		// if found, call insertSegmentInHole
-
 	}
 
 	/**
@@ -455,7 +445,7 @@ class MemoryManagement {
 				System.out.println("There are currently "+holeList.size()+" holes and "+segmentList.size()+" active processes.");
 				System.out.println("Hole List:");
 				for(int i = 0; i < holeList.size(); i++){
-					Hole hole = holeList[i];
+					Hole hole = holeList_byOrder.get(i);
 					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
 				}
 
