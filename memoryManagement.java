@@ -199,7 +199,7 @@ class MemoryManagement {
 					holeList_bySize.add(i, hole);
 					break;
 				}
-			}
+			} //EOfor
 		}
 	}
 
@@ -424,11 +424,14 @@ class MemoryManagement {
 				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
 				System.out.println("There are currently "+holeList.size()+" holes and "+segmentList.size()+" active processes.");
 				System.out.println("Hole List:");
+				
+				// Printing out all of the holes
 				for(int i = 0; i < holeList.size(); i++){
 					Hole hole = holeList[i];
 					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
 				}
 
+				// printng out all of the segments
 				System.out.println("Process List:");
 				for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList.get(i);
@@ -436,9 +439,16 @@ class MemoryManagement {
 					System.out.println("Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
 				}
 				
-				System.out.println("Total Internal Fragmentation = ");
-				System.out.println("Failed allocations (No memory) = ");
-				System.out.println("Failed allocations (External Fragmentation) = ");
+				// Calculating internal fragmentation
+				int internalSegmentFrag = 0
+				for (Segment segment: segmentList){
+					internalSegmentFrag += segment.getInternalFrag();
+				}
+				System.out.println("Total Internal Fragmentation = "+internalSegmentFrag);
+
+				// Failed allocations due to no memory and due to external fragmentation
+				System.out.println("Failed allocations (No memory) = "+failedAllocations_externalFragmentation);
+				System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_noMemory);
 				
 				break;
 			case 1:	// paging
@@ -483,7 +493,6 @@ class MemoryManagement {
 				*/
 
 				int allocatedPages = 0;
-				int internalFragmentation = 0;
 				LinkedList<Integer> freePageList = new LinkedList<Integer>();
 				Page page;
 				for (int i = 0; i < pageList.length; i++) {
@@ -502,6 +511,17 @@ class MemoryManagement {
 
 				System.out.println("Memory size = "+bytes+", total pages = "+(bytes/32));
 				
+				// Finding the internal fragmentation
+				// int internalPageFrag = 0;
+				//for (Page page: pageList){
+				//	freeSpace += page.size();
+				//}
+				//interalFrag = freeSpace%32;
+
+				System.out.println("Total Internal Fragmentation = "+interalFrag);
+				System.out.println("Failed allocations (No memory) = ");
+				System.out.println("Failed allocations (External Fragmentation) = ");
+
 				break;
 		} //EOSwitch
 
@@ -567,6 +587,7 @@ class MemoryManagement {
 		private int base;
 		private int limit;
 		private String type;
+		private int internalFragmentation = 0;
 
 		public Segment( int pid, String type, int segmentSize) { 
 			this.pid = pid;
@@ -587,11 +608,17 @@ class MemoryManagement {
 		public int getPid(){ return pid; }
 		public int getBase(){ return base; }
 		public int getLimit(){ return limit; }
+		
 		public void setBase(int base){
 			this.base = base;
 		}
+		
 		public void setLimit(int limit){
 			this.limit = limit;
+		}
+
+		public void setInternalFrag(int newInternalFrag){
+			internalFragmentation = newInternalFrag;
 		}
 	} // EOSegment
 
