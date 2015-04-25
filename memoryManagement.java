@@ -61,79 +61,97 @@ class MemoryManagement {
 	public void run() {
 		// Use segmentation if policy==0, paging if policy==1
 		for (Process process: processQueue) {
-			// process info: A, size, pid, text, data, heap
-			switch (process.getAction()) {
-				case "A": // add process
-					switch (policy) {
-						case 0:	// segmentation
-							int[] segmentList = process.getSegments();
-							int pid = process.getPid();
-							boolean segmentInserted;
-							
-							// try to insert every segment
-							for (int segment: segmentList) {
-								// segment = size of the segment from the int[] that is returned
+			if (!hasEnoughMemory(process)) {
+				failedAllocations_externalFragmentation++
+			} else { // not enough memory/space to add process
+
+				// process info: A, size, pid, text, data, heap
+				switch (process.getAction()) {
+					case "A": // add process
+						switch (policy) {
+							case 0:	// segmentation
 
 
-// CHANGE THE WAY THE SEGMENT IS PASSED IN -> NEED TO INCLUDE TYPE OF SEGMENT
-
-								segmentInserted = allocate(pid, segment);
-
-								// deallocate process if segment doesn't fit, you're out of RAM
-								if (segmentInserted == false) {
-									deallocate(pid);
-									break;
-								}
-							}
-							break;
-						case 1:	// paging
-							int pageSize = 32;
-							int totalSize = process.getSize();
-							pid = process.getPid();
-							boolean pageInserted;
-							
-							int remainder = (totalSize%3);
-							int pages = (totalSize - remainder)/pageSize;
-
-							// Get Remainder
-							if (remainder > 0){
-								int nVirtual = pages + 1;
-								pageInserted = allocate(pid, nVirtual,remainder);
+								int[] segmentSizeList = process.getSegments();
+								String[] segmentTypeList = process.getSegmentTypes();
+								int pid = process.getPid();
+								boolean segmentInserted;
 								
-								// IF the page doesn't fit, then you're out of RAM
-								if (pageInserted == false){
-									deallocate(pid);
-									break;
-								}
-							}//EOif
+								for (int i = 0; i < segmentSizeList.size(); i++) {
+									segmentInserted = allocate(pid, segmentTypeList[i], segmentSizeList[i]);
 
-							
-							// Get rest of pages
-							for (int i = 0; i < pages; i++ ){
-								pageInserted = allocate(pid, i, pageSize);
-
-								// IF the page doesn't fit, then you're out of RAM
-								if (pageInserted == false){
-									deallocate(pid);
-									break;
+									// deallocate process if segment doesn't fit, you're out of RAM
+									if (segmentInserted == false) {
+										deallocate(pid);
+										failedAllocations_externalFragmentation++;
+										break;
+									}
 								}
-							} //EOfor
+								break;
+							case 1:	// paging
+								int pageSize = 32;
+								int totalSize = process.getSize();
+								pid = process.getPid();
+								boolean pageInserted;
+								
+								int remainder = (totalSize%3);
+								int pages = (totalSize - remainder)/pageSize;
+
+								// Get Remainder
+								if (remainder > 0){
+									int nVirtual = pages + 1;
+									pageInserted = allocate(pid, nVirtual,remainder);
+									
+									// IF the page doesn't fit, then you're out of RAM
+									if (pageInserted == false){
+										deallocate(pid);
+										failedAllocations_externalFragmentation++;
+										break;
+									}
+								}//EOif
+
+								
+								// Get rest of pages
+								for (int i = 0; i < pages; i++ ){
+									pageInserted = allocate(pid, i, pageSize);
+
+									// IF the page doesn't fit, then you're out of RAM
+									if (pageInserted == false){
+										deallocate(pid);
+										failedAllocations_externalFragmentation++;
+										break;
+									}
+								} //EOfor
+								break;
+							}//EOSwitch
 							break;
-						}//EOSwitch
-						break;
+					
+					case "D": // delete process
+							deallocate(process.getPid());
+							break;
+					case "P": // print 
+							printMemoryState();
+							break;
+					default:
+							break;
+				} // EOswitch
 				
-				case "D": // delete process
-						deallocate(process.getPid());
-						break;
-				case "P": // print 
-						printMemoryState();
-						break;
-				default:
-						break;
-			} // EOswitch
+			}
 		} // EOFor
 	} // EORun
 
+	/**
+	*
+	*
+	*
+	*/
+	public boolean hasEnoughMemory(Process process) {
+		int processSize = process.getSize();
+		if (processSize < this.bytes) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	*	Inserts a page into a page list if there is space left.
@@ -167,22 +185,33 @@ class MemoryManagement {
 	*	@param	 Hole  
 	*/
 	public void insertSegmentInHole(Segment segment, Hole hole) {
-		// assign base and limit registers
-		segment.setBase(hole.getBase());
-		segment.setLimit(hole.getBase() + segment.getSize() - 1);
-
-		// add segment to list of segments
-		addSegmentToSortedList(segment);
-		
 		int leftoverSpace = hole.getSize() - segment.getSize();
-		if (leftoverSpace > 0) {
+		if (leftoverSpace > 16) { // there is more than 16 bytes leftover
+
+			// assign segment base and limit registers
+			segment.setBase(hole.getBase());
+			segment.setLimit(hole.getBase() + segment.getSize() - 1);
+		
 			// use leftover space to create new hole
 			int newHoleBase = hole.getBase() + segment.getSize();
 			int newHoleLimit = hole.getLimit();
 			Hole newHole = new Hole(newHoleBase, newHoleLimit);
-			// add hole
+			
+			// add new hole
 			addHole(newHole);
+		
+		} else { // segment takes up full hole
+
+			// update segment base and limit registers
+			segment.setBase(hole.getBase());
+			segment.setLimit(hole.getLimit());
+
+			// set internal fragmentation of segment
+			segment.setInternalFrag(leftover);
 		}
+		
+		// add segment to list of segments
+		addSegmentToSortedList(segment);
 	}
 
 	/**
