@@ -59,6 +59,12 @@ class MemoryManagement {
 	*   Begins allocating / deallocated 
 	*/
 	public void run() {
+		if (policy == 1) { // paging
+			// set up page list
+			int nPages = this.bytes / 32;
+			pageList = new Page[nPages];
+		}
+
 		// Use segmentation if policy==0, paging if policy==1
 		for (Process process: processQueue) {
 			if (!hasEnoughMemory(process)) {
@@ -314,7 +320,7 @@ class MemoryManagement {
 		} //EoFor
 	
 		// remove holes to merge and add hole
-		int iHoleInsert; // where the new hole should be added in list
+		int iHoleInsert = -1; // where the new hole should be added in list
 		if (iHoleAfter != -1 && iHoleBefore != -1) {
 
 			if (iHoleAfter != -1) {	// merge with hole after
@@ -388,7 +394,7 @@ class MemoryManagement {
 	}
 
 	public boolean deallocate(int deallocatePid) { 
-		boolean found;
+		boolean found = false;
 		switch (policy) {
 			case 0:	// segmentation
 				Segment segment;
@@ -405,12 +411,16 @@ class MemoryManagement {
 				break;
 			case 1:	// paging
 				for (int i = 0; i < pageList.length; i++) {
-					int pagePid = pageList[i].getPid();
-					if (pagePid == deallocatePid){
+					if (pageList[i] != null) {	// page in slot
+						int pagePid = pageList[i].getPid();
+						
+						if (pagePid == deallocatePid){	// check page ID
 						// remove page
 						pageList[i] = null;
 						found = true;
-					} //EOif
+						} //EOif
+					}
+					
 				} //EOif
 				break;
 		}
@@ -518,9 +528,11 @@ class MemoryManagement {
 				Page page;
 				for (int i = 0; i < pageList.length; i++) {
 					if (pageList[i] == null) { // this slot is free
+						System.out.println("free");
 						freeSpace += 32;
 					} else { // this slot has a page
 						page = pageList[i];
+						System.out.println("Phys Page"+i+" pid = "+page.getPid());
 						allocatedPages += 1;
 						allocatedSpace += 32;
 						// use a hash to store information on processes?
@@ -530,7 +542,7 @@ class MemoryManagement {
 					}
 				}
 
-				System.out.println("Memory size = "+bytes+", total pages = "+(bytes/32));
+				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
 				
 				break;
 		} //EOSwitch
