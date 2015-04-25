@@ -2,9 +2,8 @@
  * Giovanna Diaz, Alice Yang
  * Programming Assignment #3
  * Operating Systems - Spring 2015
- *
- * Input(s): .txt file of jobs
- * Return(s): 
+ * 
+ *  
  */
 import java.util.*;
 import java.util.Scanner;
@@ -13,12 +12,14 @@ import java.io.FileNotFoundException;
 import java.io.*;
 
 class MemoryManagement {
-    
+    /* Global Variables */
     int bytes;
     int policy;
-    LinkedList<Process> processQueue;
     int failedAllocations_noMemory = 0;
     int failedAllocations_externalFragmentation = 0;
+
+    /* Queue for Processes - comes from TestMemoryManagement.java */
+    LinkedList<Process> processQueue;
 
     /* HoleLists for Segmentation */
 	private ArrayList<Hole> holeList_byOrder = new ArrayList<Hole>();
@@ -31,6 +32,14 @@ class MemoryManagement {
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 	private Page[] pageList;
 
+
+	/**
+	*	MemoryManagement
+	*   Constructor for MemoryManagement.java
+	* 	Initializes and calls run() that begins to allocate / deallocate depending on the policy
+	*		
+	*	@param	 bytes, policy, processQueue  
+	*/
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		// intialize memory - base 0, limit GivenBytes
 		holeList.add(new Hole(0, bytes-1));
@@ -44,7 +53,11 @@ class MemoryManagement {
 
 		run();
 	}
-	
+
+	/**
+	*   run()
+	*   Begins allocating / deallocated 
+	*/
 	public void run() {
 		// Use segmentation if policy==0, paging if policy==1
 		for (Process process: processQueue) {
@@ -91,7 +104,7 @@ class MemoryManagement {
 								if (pageInserted == false){
 									deallocate(pid);
 									break;
-								} //EOif
+								}
 							}//EOif
 
 							
@@ -103,7 +116,7 @@ class MemoryManagement {
 								if (pageInserted == false){
 									deallocate(pid);
 									break;
-								} //EOif
+								}
 							} //EOfor
 							break;
 						}//EOSwitch
@@ -126,7 +139,7 @@ class MemoryManagement {
 	*	Inserts a page into a page list if there is space left.
 	*	
 	*	@param	 page	
-	*	@return  whether or not there was space for the page 
+	*	@return  Whether or not there was space for the page 
 	*/
 	public boolean insertPage(Page page) {
 		// add page of pages to list of pages
@@ -145,12 +158,13 @@ class MemoryManagement {
 
 
 	/**
+	*   insertSegmentInHole()
 	*	Inserts a segment into a hole.
 	* 	If segment doesn't take up all the space,
 	* 	the leftover space becomes another hole.
 	*	
-	*	@param	 segment 	
-	*	@param	 hole  
+	*	@param	 Segment 	
+	*	@param	 Hole  
 	*/
 	public void insertSegmentInHole(Segment segment, Hole hole) {
 		// assign base and limit registers
@@ -171,9 +185,11 @@ class MemoryManagement {
 		}
 	}
 
-	/*
+	/**
+	* addHoleToSortedSizeList()
+	* Adds a hole to the sorted list of holes 
 	*
-	*
+	* @param Hole, Size
 	*/
 	public void addHoleToSortedSizeList(Hole hole, int size) {
 		if (holeList_bySize.isEmpty()) {
@@ -188,6 +204,12 @@ class MemoryManagement {
 		}
 	}
 
+	/**
+	* addSegmentToSortedList()
+	* Adds a segment to the sorted list of segments 
+	*
+	* @param segment
+	*/
 	public void addSegmentToSortedList(Segment segment) {
 		int base = segment.getBase();
 		// if segment list is empty or segment belongs to end of list
@@ -378,6 +400,12 @@ class MemoryManagement {
 		return found;
 	}
 
+	/**
+	* printMemoryState()
+	* When there is a "P" in the action list, it prints out the current
+	* state of the memory
+	*
+	*/
 	public void printMemoryState() { 
 		// print out current state of memory
 		// the output will depend on the memory allocator being used.
@@ -386,25 +414,6 @@ class MemoryManagement {
 		int freeSpace = 0;
 		switch (policy) {
 			case 0:	// segmentation
-				// Memory size = 1024 bytes, allocated bytes = 179, free = 845
-				// There are currently 10 holes and 3 active process
-				//
-				// Hole list:
-				// 	hole 1: start location = 0, size = 202
-				// ...
-				//
-				// Process list:
-				// process id=34, size & allocation=95
-				// 	text start=202, size=25
-				// 	data start=356, size=16
-				// 	heap start=587, size=54
-				//
-				// process id=39, size=55 allocation=65
-				// ...
-				//
-				// Total Internal Fragmentation = 10 bytes
-				// Failed allocations (No memory) = 2
-				// Failed allocations (External Fragmentation) = 7 
 				for (Segment segment: segmentList) {
 					allocatedSpace += segment.getSize();
 				}
@@ -499,6 +508,12 @@ class MemoryManagement {
 
 	}
 
+	/**
+	* Hole()
+	* Creates a new Hole object
+	* 
+	* @param base, limit
+	*/
 	public class Hole {
 		private int base;
 		private int limit;
@@ -517,11 +532,11 @@ class MemoryManagement {
 	} //EOHole
 
 
-	/** Page Class 
-	  * Creates a page object / keeps track of wasted space (by the size)
-	  * inputs: pageSize (how much of the page is actually being used), pid (the process ID)
-	  *         takesFulLSpace (boolean if it takes up all of 32 or not)
-	  **/
+	/**
+	* Page()
+	* Creates a new Page Object
+	* @param pid, nVirtual, pageSize
+	*/
 	public class Page{
 		private int pageSize;
 		private int pid;
@@ -540,10 +555,13 @@ class MemoryManagement {
 		
 	} //EOPage
 
-	/* Segment Class
-	 * creates a new segment object
-	 * input: segmentSize, pid (The Process ID)
-	 */
+
+	/**
+	* Segment()
+	* Creates a new Segment Object
+	*
+	* @param pid, type, segmentSize, (base), (limit)
+	*/
 	public class Segment{
 		private int pid;		
 		private int segmentSize;
@@ -578,10 +596,13 @@ class MemoryManagement {
 		}
 	} // EOSegment
 
-	/* Action Class
-	 * creates a new action object
-	 * @param: Action (A/P/D), pid (The Process ID)
-	 */
+	/**
+	* Segment()
+	* Creates a new Action Object - applies pid for A and D
+	* otherwise just allows a P to also be an action
+	*
+	* @param pid, action
+	*/
 	public class Action{
 		private String action;
 		private int pid;
