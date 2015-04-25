@@ -56,7 +56,7 @@ class MemoryManagement {
 
 	/**
 	*   run()
-	*   Begins allocating / deallocated 
+	*   Begins allocating / deallocating
 	*/
 	public void run() {
 		// Use segmentation if policy==0, paging if policy==1
@@ -66,6 +66,7 @@ class MemoryManagement {
 				case "A": // add process
 					switch (policy) {
 						case 0:	// segmentation
+							// Get the list of Segments
 							int[] segmentList = process.getSegments();
 							int pid = process.getPid();
 							boolean segmentInserted;
@@ -73,8 +74,6 @@ class MemoryManagement {
 							// try to insert every segment
 							for (int segment: segmentList) {
 								// segment = size of the segment from the int[] that is returned
-
-
 // CHANGE THE WAY THE SEGMENT IS PASSED IN -> NEED TO INCLUDE TYPE OF SEGMENT
 
 								segmentInserted = allocate(pid, segment);
