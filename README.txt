@@ -63,11 +63,14 @@ DOCUMENT THE PROBLEMS:
 ANSWERS TO PART 4:
 ------------------
 4.1) In your implementation of segmentation which of the best fit, first fit, or worst fit memory allocation policy do you use to find a free memory region for each segment? Why did you pick this policy? (5)
-> We implemented the best fit policy to find the empty segments. We chose this policy because it uses the RAM more efficiently and it doesn’t waste as much space as the other policies that we could have used.
+> We implemented the best fit policy to find the empty segments. We chose this policy because it uses the 
+RAM more efficiently and it doesn’t waste as much space as the other policies that we could have used.
 
 
 - - - - - - - - - - - - - - - -
-4.2) What data structures and search algorithm do you use for searching through the list of holes (in segmentation)? You will get 5 points for implementing a brute force linear search. If you implement anything more efficient than this, you will get full 10 points. (10)
+4.2) What data structures and search algorithm do you use for searching through the list of holes (in 
+segmentation)? You will get 5 points for implementing a brute force linear search. If you implement 
+anything more efficient than this, you will get full 10 points. (10)
 > To do the best fit policy, we decided to implement two separate lists.
 	“holeList_byOrder” - This holds the hole in their order on the RAM. This helps us with combining 
 			     holes when they are next to each other.
@@ -112,7 +115,8 @@ ANSWERS TO PART 4:
 
 
 - - - - - - - - - - - - - - - -
-4.5) In paging, what data structure do you use for tracking what physical page is mapped to each virtual page? (2)
+4.5) In paging, what data structure do you use for tracking what physical page is mapped to each virtual 
+page? (2)
 > As you can see in the previous answer to (4.4), we have a Page object which contains the virtual page reference. The index in to the page array is the physical page number.
 
 
@@ -124,15 +128,21 @@ ANSWERS TO PART 4:
 
 
 - - - - - - - - - - - - - - - -
-4.7) Write an input test case where the Segmentation allocator has little internal fragmentation. Explain why this test case produces the result you see. (3)
-> From the instructions, “When a segment is allocated within a hole, if the remaining space is less than 16 bytes then the segment should be allocated the full hole.”
+4.7) Write an input test case where the Segmentation allocator has little internal fragmentation. Explain 
+why this test case produces the result you see. (3)
+> From the instructions, “When a segment is allocated within a hole, if the remaining space is less than 
+16 bytes then the segment should be allocated the full hole.”
 
-You can find our test file: “internalFrag_segmentation.txt”. The file starts out by completely filling the ram so that there is NO internal fragmentation at all. One of the processes is deleted, and then another allocated such that there is minimal internal fragmentation.
+You can find our test file: “internalFrag_segmentation.txt”. The file starts out by completely filling the 
+ram so that there is NO internal fragmentation at all. One of the processes is deleted, and then another 
+allocated such that there is minimal internal fragmentation.
 
 
 - - - - - - - - - - - - - - - -
-4.8) Write another test case where the Paging allocator sees lot of internal fragmentation. Explain why this test case produces the result you see. (3)
-> You can find our test file: “internalFrag_Paging.txt”. This file adds processes that contain a lot of internal fragmentation - where the standard page size is 32 bytes, just as with sample.txt.
+4.8) Write another test case where the Paging allocator sees lot of internal fragmentation. Explain why 
+this test case produces the result you see. (3)
+> You can find our test file: “internalFrag_Paging.txt”. This file adds processes that contain a lot of 
+internal fragmentation - where the standard page size is 32 bytes, just as with sample.txt.
 
 
 
