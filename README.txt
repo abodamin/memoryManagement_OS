@@ -31,13 +31,28 @@ $ java TestMemoryManagement sample.txt
 
 SUMMARY OF DESIGN CHOICES:
 --------------------------
-You can read above which files are included in this .zip. The “TestMemoryManagemet.java” Class reads in the supplied sample.txt file (as well as our other written tests) and sends an ArrayList<Process> to our MemoryManagement.java file. We decided to separate the reading and calculations between the two files to keep the implementation cleaner.
+You can read above which files are included in this .zip. The “TestMemoryManagemet.java” Class reads in
+the supplied sample.txt file (as well as our other written tests) and sends an ArrayList<Process> to our 
+MemoryManagement.java file. We decided to separate the reading and calculations between the two files to 
+keep the implementation cleaner.
 
-Once in MemoryManagement.java, we implement the different commands based on the given policy. We begin creating segment/page objects and allocating them accordingly. We are using switches since it seemed to be the most elegant option if we are to keep everything in one file, despite having to break at the end of each case. You will find that we have created objects for Actions, Pages, Segments, and Holes. This seemed to be the simplest way to contain all of the information needed for each. (As well as account for the mix of Types (int, string, etc.) that was in the information. We felt as though an an array of arrays added a level of abstraction that was not necessary and a bit confusing.
+Once in MemoryManagement.java, we implement the different commands based on the given policy. We begin 
+creating segment/page objects and allocating them accordingly. We are using switches since it seemed to be 
+the most elegant option if we are to keep everything in one file, despite having to break at the end of 
+each case. You will find that we have created objects for Actions, Pages, Segments, and Holes. This seemed 
+to be the simplest way to contain all of the information needed for each. (As well as account for the mix 
+of Types (int, string, etc.) that was in the information. We felt as though an an array of arrays added a 
+level of abstraction that was not necessary and a bit confusing.
 
-We wanted to implement the best-fit policy. Therefore, for segmentation, we decided to keep two different ArrayLists<Holes>. One of these lists is sorted by size, and the other lists the holes in order of appearance on the RAM. This would eliminate the multitude of linear searches we would have to do to find empty holes, and their location compared to everything else. It also helps with combining two empty holes that appear right next to each other.
+We wanted to implement the best-fit policy. Therefore, for segmentation, we decided to keep two different 
+ArrayLists<Holes>. One of these lists is sorted by size, and the other lists the holes in order of 
+appearance on the RAM. This would eliminate the multitude of linear searches we would have to do to find 
+empty holes, and their location compared to everything else. It also helps with combining two empty holes 
+that appear right next to each other.
 
-Overall, our MemoryManagement.java class follows the given sudocode. We did give a lot of attention to how we were going to structure the different classes, and all of the information that each component needed. We also tried to keep efficiency in mind.
+Overall, our MemoryManagement.java class follows the given sudocode. We did give a lot of attention to how 
+we were going to structure the different classes, and all of the information that each component needed. 
+We also tried to keep efficiency in mind.
 
 
 DOCUMENT THE PROBLEMS:
