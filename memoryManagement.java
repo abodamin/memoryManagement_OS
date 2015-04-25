@@ -516,7 +516,7 @@ class MemoryManagement {
 		public int getSize() { return limit - base; }
 	} //EOHole
 
-	/*
+
 	/** Page Class 
 	  * Creates a page object / keeps track of wasted space (by the size)
 	  * inputs: pageSize (how much of the page is actually being used), pid (the process ID)
@@ -550,14 +550,14 @@ class MemoryManagement {
 		private int base;
 		private int limit;
 		private String type;
-		
+
 		public Segment( int pid, String type, int segmentSize) { 
 			this.pid = pid;
 			this.type = type;
 			this.segmentSize = segmentSize;
 		} 
 
-		public Segment( int pid, String type, int segmentSize, int base, int limit) { 
+		public Segment( int pid, String type, int segmentSize, int base, int limit ) { 
 			this.type = type;
 			this.base = base;
 			this.limit = limit;
