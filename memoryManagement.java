@@ -29,7 +29,6 @@ class MemoryManagement {
 
 	/* ArrayLists for Segments and Pages */
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
-	//private ArrayList<Page> pageList = new ArrayList<Page>();
 	private Page[] pageList;
 
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
@@ -111,7 +110,7 @@ class MemoryManagement {
 						break;
 				
 				case "D": // delete process
-						deallocate(pid);
+						deallocate(process.getPid());
 						break;
 				case "P": // print 
 						printMemoryState();
@@ -156,16 +155,16 @@ class MemoryManagement {
 	public void insertSegmentInHole(Segment segment, Hole hole) {
 		// assign base and limit registers
 		segment.setBase(hole.getBase());
-		segment.setLimit(segment.getSize());
+		segment.setLimit(hole.getBase() + segment.getSize() - 1);
 
 		// add segment to list of segments
-		segmentList.add(segment);
+		addSegmentToSortedList(segment);
 		
 		int leftoverSpace = hole.getSize() - segment.getSize();
 		if (leftoverSpace > 0) {
 			// use leftover space to create new hole
-			newHoleBase = hole.getBase() + segment.getSize();
-			newHoleLimit = hole.getLimit();
+			int newHoleBase = hole.getBase() + segment.getSize();
+			int newHoleLimit = hole.getLimit();
 			Hole newHole = new Hole(newHoleBase, newHoleLimit);
 			// add hole
 			addHole(newHole);
@@ -182,7 +181,7 @@ class MemoryManagement {
 		} else {
 			for (int i = 0; i < holeList_bySize.size(); i++) {
 				if (size < holeList_bySize.get(i).getSize()) {
-					holeList_bySize.insert(i, hole);
+					holeList_bySize.add(i, hole);
 					break;
 				}
 			}
@@ -190,16 +189,21 @@ class MemoryManagement {
 	}
 
 	public void addSegmentToSortedList(Segment segment) {
+		int base = segment.getBase();
 		// if segment list is empty or segment belongs to end of list
-		if (segmentList.isEmpty() || (base > segmentList.get(segmentList.size()-1).getBase())) {
+		if (segmentList.isEmpty()) {
+			segmentList.add(segment);
+		} else if (base > segmentList.get(segmentList.size()-1).getBase()) {
+			// segment belongs to end of list
 			segmentList.add(segment);
 		} else {
 			Segment curSegment;
+			int curBase;
 			// add segment using insert sort
 			for (int i = 0; i < segmentList.size(); i++) {
-				int curBase = segmentList.get(i).getBase();
+				curBase = segmentList.get(i).getBase();
 				if (base < curBase) {
-					segmentList.insert(i, segment);
+					segmentList.add(i, segment);
 					break;
 				}
 			}
@@ -219,8 +223,8 @@ class MemoryManagement {
 
 
 		// place holder for merged hole info
-		Integer iHoleBefore = -1;
-		Integer iHoleAfter = -1;
+		int iHoleBefore = -1;
+		int iHoleAfter = -1;
 
 		for (int i = 0; i < holeList_byOrder.size(); i++) {
 			Hole checkHole = holeList_byOrder.get(i);
@@ -262,13 +266,13 @@ class MemoryManagement {
 			if (iHoleAfter != -1) {	// merge with hole after
 				iHoleInsert = iHoleAfter;
 				Hole holeAfter = holeList_byOrder.remove(iHoleAfter);
-				holeList_bySize.remove(holeAfter);
+				holeList_bySize.remove(iHoleAfter);
 			}
 			
 			if (iHoleBefore != -1) { // merge with hole before
 				iHoleInsert = iHoleBefore;
 				Hole holeBefore = holeList_byOrder.remove(iHoleBefore);
-				holeList_bySize.remove(holeBefore);
+				holeList_bySize.remove(iHoleBefore);
 			} 
 
 			if (iHoleInsert == holeList_byOrder.size()-1) {
@@ -276,7 +280,7 @@ class MemoryManagement {
 				holeList_byOrder.add(hole);
 			} else {
 			// add hole to end of list of ordered holes
-			holeList_byOrder.insert(iHoleInsert, hole);
+			holeList_byOrder.add(iHoleInsert, hole);
 			} 
 		} else {
 			holeList_byOrder.add(hole);
@@ -304,11 +308,18 @@ class MemoryManagement {
 		// Allocate the segment
 		// Find the right Hole
 		// Get the base and limit of that hole
-		int base = 0;
-		int limit = 0;
-		// Segment(int pid, String type, int segmentSize, int base, int limit)
-		Segment newSegment = new Segment(pid, type, bytes, base, limit);
-		segmentList.add(newSegment);
+		
+		boolean allocated = false;
+		// Segment(int pid, String type, int segmentSize)
+		Segment newSegment = new Segment(pid, type, bytes);
+		for (Hole hole: holeList_bySize) {
+			if(bytes < hole.getSize()) {
+				insertSegmentInHole(newSegment, hole);
+				allocated = true;
+				break;
+			}
+		}
+		return allocated;
 				
 		// RE-SORT THE LIST!
 
@@ -463,7 +474,7 @@ class MemoryManagement {
 
 				*/
 
-				int nPages = 0;
+				int allocatedPages = 0;
 				int internalFragmentation = 0;
 				LinkedList<Integer> freePageList = new LinkedList<Integer>();
 				Page page;
@@ -472,7 +483,7 @@ class MemoryManagement {
 						freeSpace += 32;
 					} else { // this slot has a page
 						page = pageList[i];
-						nPages += 1;
+						allocatedPages += 1;
 						allocatedSpace += 32;
 						// use a hash to store information on processes?
 						// { pid -> page }
@@ -481,7 +492,7 @@ class MemoryManagement {
 					}
 				}
 
-
+				System.out.println("Memory size = "+bytes+", total pages = "+(bytes/32));
 				
 				break;
 		} //EOSwitch
@@ -539,7 +550,13 @@ class MemoryManagement {
 		private int base;
 		private int limit;
 		private String type;
-		
+
+		public Segment( int pid, String type, int segmentSize) { 
+			this.pid = pid;
+			this.type = type;
+			this.segmentSize = segmentSize;
+		} 
+
 		public Segment( int pid, String type, int segmentSize, int base, int limit ) { 
 			this.type = type;
 			this.base = base;
@@ -553,6 +570,12 @@ class MemoryManagement {
 		public int getPid(){ return pid; }
 		public int getBase(){ return base; }
 		public int getLimit(){ return limit; }
+		public void setBase(int base){
+			this.base = base;
+		}
+		public void setLimit(int limit){
+			this.limit = limit;
+		}
 	} // EOSegment
 
 	/* Action Class
