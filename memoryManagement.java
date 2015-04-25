@@ -207,7 +207,7 @@ class MemoryManagement {
 			segment.setLimit(hole.getLimit());
 
 			// set internal fragmentation of segment
-			segment.setInternalFrag(leftover);
+			segment.setInternalFrag(leftoverSpace);
 		}
 		
 		// add segment to list of segments
@@ -587,6 +587,7 @@ class MemoryManagement {
 		private int base;
 		private int limit;
 		private String type;
+		private int internalFragmentation;
 
 		public Segment( int pid, String type, int segmentSize) { 
 			this.pid = pid;
@@ -607,11 +608,17 @@ class MemoryManagement {
 		public int getPid(){ return pid; }
 		public int getBase(){ return base; }
 		public int getLimit(){ return limit; }
+		
 		public void setBase(int base){
 			this.base = base;
 		}
+
 		public void setLimit(int limit){
 			this.limit = limit;
+		}
+
+		public void setInternalFrag(int newInternalFrag){
+			this.internalFragmentation = newInternalFrag;
 		}
 	} // EOSegment
 
