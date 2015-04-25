@@ -20,90 +20,88 @@ class MemoryManagement {
     int failedAllocations_noMemory = 0;
     int failedAllocations_externalFragmentation = 0;
 
+    /* HoleLists for Segmentation */
 	private ArrayList<Hole> holeList_byOrder = new ArrayList<Hole>();
 	private ArrayList<Hole> holeList_bySize = new ArrayList<Hole>();
+
+	/* HoleList for Paging */
+	private ArrayList<Hole> holeList = new ArrayList<Hole>();
+
+	/* ArrayLists for Segments and Pages */
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 	private ArrayList<Page> pageList = new ArrayList<Page>();
 
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		// intialize memory - base 0, limit GivenBytes
-		holeList.add(new Hole(0, bytes-1))
+		holeList.add(new Hole(0, bytes-1));
 		this.bytes = bytes;
 		this.policy = policy;
-		this.process = processQueue;
+		this.processQueue = processQueue;
 
 		// intialize memory with these many bytes.
 		holeList_byOrder.add(new Hole(0, bytes-1));
 		holeList_bySize.add(new Hole(0, bytes-1));
 
-		public void run() {
-			// Use segmentation if policy==0, paging if policy==1
-			for (Process process: processQueue) {
-				// process info: A, size, pid, text, data, heap
-				switch (process.getAction()) {
-					case "A": // add process
-							switch (policy) {
-								case 0:	// segmentation
-									int Array[] segmentList = process.getSegments();
-									int pid = process.getPid();
-									boolean inserted;
-									
-									// try to insert every segment
-									for (int segment: segmentList) {
-										inserted = allocate(pid, segment);
+		run();
+	}
+	
+	public void run() {
+		// Use segmentation if policy==0, paging if policy==1
+		for (Process process: processQueue) {
+			// process info: A, size, pid, text, data, heap
+			switch (process.getAction()) {
+				case "A": // add process
+					switch (policy) {
+						case 0:	// segmentation
+							int[] segmentList = process.getSegments();
+							int pid = process.getPid();
+							boolean segmentInserted;
+							
+							// try to insert every segment
+							for (int segment: segmentList) {
+								// segment = size of the segment from the int[] that is returned
 
-										// deallocate process if segment doesn't fit, you're out of RAM
-										if (inserted == false) {
-											deallocate(pid);
-											break;
-										}
-									}
+								segmentInserted = allocate(pid, segment);
+
+								// deallocate process if segment doesn't fit, you're out of RAM
+								if (segmentInserted == false) {
+									deallocate(pid);
 									break;
-								case 1:	// paging
-									int pageSize = 32
-									int totalSize = process.getSize()
-									int pid = process.getPid();
-									boolean inserted;
-									
-									int remainder = (totalSize%3);
-
-									// Get Remainder
-									if (remainder > 0){
-										inserted = allocate(pid, remainder);
-										
-										// IF the page doesn't fit, then you're out of RAM
-										if (inserted == false)){
-											deallocate(pid);
-											break;
-										} //EOif
-									}//EOif
-
-									int pages = (totalSize - remainder)/pageSize
-									// Get rest of pages
-									for (int i; i < pages; i++ ){
-										inserted = allocate(pid, pageSize);
-										// IF the page doesn't fit, then you're out of RAM
-										if (inserted == false)){
-											deallocate(pid);
-											break;
-										} //EOif
-									} //EOfor
-
-									break;
-
+								}
 							}
 							break;
-					
-					case "D": // delete process
-							deallocate(pid);
-							break;
-					
-					case "P": // print 
-							printMemoryState();
-							break;
+						case 1:	// paging
+							int pageSize = 32;
+							int totalSize = process.getSize();
+							pid = process.getPid();
+							boolean pageInserted;
+							
+							int remainder = (totalSize%3);
 
-					default:
+							// Get Remainder
+							if (remainder > 0){
+								pageInserted = allocate(pid, remainder);
+								
+								// IF the page doesn't fit, then you're out of RAM
+								if (pageInserted == false){
+									deallocate(pid);
+									break;
+								} //EOif
+							}//EOif
+
+							int pages = (totalSize - remainder)/pageSize;
+							// Get rest of pages
+							for (int i; i < pages; i++ ){
+								pageInserted = allocate(pid, pageSize);
+
+								// IF the page doesn't fit, then you're out of RAM
+								if (pageInserted == false){
+									deallocate(pid);
+									break;
+								} //EOif
+							} //EOfor
 							break;
+<<<<<<< HEAD
 				} // EOswitch
 			} // EOFor
 		} // EORun
@@ -136,6 +134,20 @@ class MemoryManagement {
 		}
 	}
 
+						}//EOSwitch
+						break;
+				
+				case "D": // delete process
+						deallocate(pid);
+						break;
+				case "P": // print 
+						printMemoryState();
+						break;
+				default:
+						break;
+			} // EOswitch
+		} // EOFor
+	} // EORun
 
 	/**
 	*	Inserts a segment into a hole.
@@ -196,6 +208,17 @@ class MemoryManagement {
 
 	public void addPageToSortedList(Page page) {
 
+=======
+	public void insertBlockInHole(int bytes, Hole hole){
+		// remove hole from list
+		// insert segment into hole
+		// use leftover space to create new hole
+		// add segment to list of segments
+		// if new hole, add to list of holes
+	}
+
+	public void addHoleToSortedSizeList(Hole hole, int size){
+>>>>>>> ae7d1381dd1ec973b16cfe1ffbd06d962245ada7
 	}
 
 	/**
@@ -211,8 +234,8 @@ class MemoryManagement {
 
 
 		// place holder for merged hole info
-		int iHoleBefore = null;
-		int iHoleAfter = null;
+		Integer iHoleBefore = null;
+		Integer iHoleAfter = null;
 
 		for (int i = 0; i < holeList_byOrder.size(); i++) {
 			Hole checkHole = holeList_ByOrder.get(i);
@@ -227,7 +250,7 @@ class MemoryManagement {
 
 				if ((i+1)<holeList_byOrder.size()) {
 					// next hole exists
-					int checkHoleBase = holeList_byOrder.get(i+1).getBase();
+					checkHoleBase = holeList_byOrder.get(i+1).getBase();
 					
 					if (holeLimit == checkHoleBase - 1) {
 						// merge hole after previous hole
@@ -236,18 +259,16 @@ class MemoryManagement {
 					}
 				}
 				break;
-			}
-			else if (holeLimit == checkHoleBase - 1) {
-				int iHoleAfter = i;
+			} else if (holeLimit == checkHoleBase - 1) {
+				iHoleAfter = i;
 				hole.setLimit(checkHoleLimit);
 				break;
 			}
-		}
+		} //EoFor
 	
 		// remove holes to merge and add hole
 		int iHoleInsert;
 		if (iHoleAfter != null && iHoleBefore != null) {
-		
 			if (iHoleAfter != null) {
 				iHoleInsert = iHoleAfter;
 				Hole holeAfter = holeList_byOrder.remove(iHoleAfter);
@@ -256,6 +277,7 @@ class MemoryManagement {
 			
 			if (iHoleBefore != null) {
 				iHoleInsert = iHoleBefore;
+<<<<<<< HEAD
 				Hole holeBefore = holeList_byOrder.remove(iHoleBefore);
 				holeList_bySize.remove(holeBefore);
 			} 
@@ -268,12 +290,22 @@ class MemoryManagement {
 			holeList_byOrder.insert(iHoleInsert, hole);
 		} else {
 			holeList_byOrder.add(hole);
+=======
+				holeList_byOrder.remove(iHoleBefore);
+			} 
+
+			if (iHoleInsert == holeList_byOrder.size()-1) {
+				holeList_byOrder.add(iHoleInsert, hole);
+			}
+		} else { // add hole to end of list of ordered holes
+			holeList_byOrder.add(hole); 
+>>>>>>> ae7d1381dd1ec973b16cfe1ffbd06d962245ada7
 		}
 
 		// add hole to end of list of size ordered holes
-		addHoleToSortedSizeList(hole);
-		}
-	}
+		addHoleToSortedSizeList(hole, hole.size());
+	
+	} // EOAddHole
 
 	/**
 	*	Tries to insert a segment or page into RAM.
@@ -281,13 +313,31 @@ class MemoryManagement {
 	*	@param	 size of segment or page in bytes	
 	*	@Return  whether or not segment could be inserted
 	*/
-	public int allocate(int pid, int bytes)
-	{ 
-		//allocate this many bytes to the process with this id 
-		// assume that each pid is unique to a process 
-		// if using the Segmentation allocator: size of each segment is: text_size, 		//..data_size, and heap_size.
-		// Verify that text_size + data_size + heap_size = bytes
-		
+	public void allocate(int pid, int bytes, String type) { 
+		// Allocate the segment / pages
+		// If a page, ignore the bytes/type
+		switch (policy) {
+			case 0:	// segmentation
+				// Find the right Hole
+				// Get the base and limit of that hole
+				int base = 0;
+				int limit = 0;
+				// Segment(int pid, String type, int segmentSize, int base, int limit)
+				Segment newSegment = new Segment(pid, type, bytes, base, limit);
+				segmentList.add(newSegment);
+				
+				break;
+			case 1:	// paging
+				Hole firstHole = holeList.remove(0); // Get the first Hole (All the same size)
+				// Page(int pid, int pageSize)
+				Page newPage = new Page(pid, bytes);
+
+				break;
+
+		// RE-SORT THE LIST!
+
+		}
+
 		//If using the paging allocator, simply ignore the segment size variables 
 		//Return 1 if successful 
 		//Return -1 if unsuccessful 
@@ -299,7 +349,7 @@ class MemoryManagement {
 
 	}
 
-	public int deallocate(int deallocatePid) { 
+	public void deallocate(int deallocatePid) { 
 		/*
 		switch (policy) {
 			case 0:	// segmentation
@@ -317,6 +367,7 @@ class MemoryManagement {
 					int pagePid = page.getPid();
 					if (pagePid == deallocatePid){
 						Hole newHole = new Hole(page.getBase(), page.getLimit());
+						
 						pageList.remove(page);
 					} //EOif
 				} //EOif
@@ -326,8 +377,7 @@ class MemoryManagement {
 		// return 1 if successful, -1 otherwise with an error message
 	}
 
-	public void printMemoryState()
-	{ 
+	public void printMemoryState() { 
 		// print out current state of memory
 		// the output will depend on the memory allocator being used.
 
@@ -353,7 +403,7 @@ class MemoryManagement {
 				// Failed allocations (No memory) = 2
 				// Failed allocations (External Fragmentation) = 7 
 				int allocatedSpace = 0;
-				for(Segment segment: segmentList){
+				for (Segment segment: segmentList) {
 					allocatedSpace += segment.getSize();
 				}
 
@@ -363,23 +413,23 @@ class MemoryManagement {
 				}
 
 				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
-				System.out.println("There are currently "+hoeList.size()+" holes and "+segmentList.size()+" active processes.");
+				System.out.println("There are currently "+holeList.size()+" holes and "+segmentList.size()+" active processes.");
 				System.out.println("Hole List:");
 				for(int i = 0; i < holeList.size(); i++){
 					Hole hole = holeList[i];
 					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
 				}
 
-				System.out.println("Process List:")
+				System.out.println("Process List:");
 				for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList[i];
 					// pid 3, text, start: 234, size: 2305
 					System.out.println("Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
 				}
 				
-				System.out.prinln("Total Internal Fragmentation = ");
-				System.out.prinln("Failed allocations (No memory) = ");
-				System.out.prinln("Failed allocations (External Fragmentation) = ");
+				System.out.println("Total Internal Fragmentation = ");
+				System.out.println("Failed allocations (No memory) = ");
+				System.out.println("Failed allocations (External Fragmentation) = ");
 				
 				break;
 			case 1:	// paging
@@ -405,12 +455,12 @@ class MemoryManagement {
 				// Total Internal Fragmentation = 13 bytes
 				// Failed allocations (No memory) = 2
 				// Failed allocations (External Fragmentation) = 0 
-				int allocatedSpace = 0;
-				for(Segment page: pageList){
+				allocatedSpace = 0;
+				for(Page page: pageList){
 					allocatedSpace += page.getSize();
 				}
 
-				int freeSpace = 0;
+				freeSpace = 0;
 				for(Hole hole: holeList){
 					freeSpace += hole.getSize();
 				}
@@ -436,7 +486,6 @@ class MemoryManagement {
 
 		public int getBase() { return base; }
 		public int getLimit() { return limit; }
-		public int getSize() { return size; }
 		public void setBase(int base) { this.base = base; }
 		public void setLimit(int limit) { this.base = base; }	
 		public int getSize() { return limit - base; }
@@ -490,13 +539,13 @@ class MemoryManagement {
 
 	/* Action Class
 	 * creates a new action object
-	 * input: Action (A/P/D), pid (The Process ID)
+	 * @param: Action (A/P/D), pid (The Process ID)
 	 */
 	public static class Action{
 		private String action;
 		private int pid;
 
-		public Action(String pid, int action) { 
+		public Action(int pid, String action) { 
 			this.action = action;
 			this.pid = pid;
 		}

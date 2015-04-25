@@ -42,9 +42,14 @@ class Process {
 	
 
 	// Returns a segment with all the appropriate segment information
-	public int[] getSegment() { 
+	public int[] getSegments() { 
 		int segmentArray[] = {textSegment, dataSegment, heapSegment};
 		return segmentArray; 
+	}
+
+	public String[] getSegmentTypes() {
+		String segmentTypeArray[] = {"text", "data", "heap"};
+		return segmentTypeArray;
 	}
 
 	// Returns the TOTAL size of all the segments
