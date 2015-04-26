@@ -118,7 +118,7 @@ class MemoryManagement {
 									} else {
 										nVirtual = pages + 1;
 									}
-									pageInserted = allocate(pid, nVirtual, pageSize);
+									pageInserted = allocate(pid, nVirtual, remainder);
 
 									// IF the page doesn't fit, then you're out of RAM
 									if (pageInserted == false){
@@ -532,82 +532,67 @@ class MemoryManagement {
 				// Failed allocations (No memory) = 2
 				// Failed allocations (External Fragmentation) = 0 
 				
-				/*
-				allocatedSpace = 0;
-				for(Page page: pageList){
-					allocatedSpace += page.getSize();
-				}
 
-				freeSpace = 0;
-				for(Hole hole: holeList){
-					freeSpace += hole.getSize();
-				}
-
-				System.out.println("Memory size = "+bytes+", total pages = "+(bytes/32));
-				int freePages = (bytes/30) - pageList.size();
-				System.out.println("Allocated pages = "+pageList.size()+", free pages = "+freePages);
-
-				*/
-				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
-				//System.out.println("allocated pages = "+segmentList.size()+", free pages = "+holeList.size());
-				System.out.println("There are currently "+pageMap.size()+" active processes.");
-
-				/*
-				int allocatedPages = 0;
-				int internalFragmentation = 0;
+				
 				LinkedList<Integer> freePageList = new LinkedList<Integer>();
-				Page page;
+				int allocatedPages = 0;
 				for (int i = 0; i < pageList.length; i++) {
 					if (pageList[i] == null) { // this slot is free
-						System.out.println("    Page List Slot "+i+" is free");
-						freeSpace += 32;
-					} else { // this slot has a page
-						page = pageList[i];
-						System.out.println("    Physical Page = "+i+", pid = "+page.getPid());
-						allocatedPages += 1;
-						allocatedSpace += 32;
-						// use a hash to store information on processes?
-						// { pid -> page }
-
-						internalFragmentation += (32 - page.getPageSize());
+						freePageList.add((Integer)i);
+					} else {
+						allocatedPages++;
 					}
 				}
-				*/
+				
+				System.out.println();
+				System.out.println("Memory size = "+bytes+", Total possible pages = "+(bytes/32));
+				System.out.println("Allocated pages = "+allocatedPages+", Free pages = "+freePageList.size());
+				System.out.println("There are currently "+pageMap.size()+" active processes.");
+				System.out.println("Free Page list:");
+				System.out.print("	");
+				// printing all free page numbers
+				for (int nPage: freePageList) {
+					System.out.print(nPage+",");
+				}
+				System.out.println();
 
 				System.out.println("Process list:");	// Process list:
 
-				Process id=34, size=95 bytes, number of pages=3
+				//Process id=34, size=95 bytes, number of pages=3
 
 				Object[] processes = pageMap.keySet().toArray();
+
+				int internalFragmentation = 0;
 				// for every process
 				for (int i = 0; i < processes.length; i++) {
 					Integer pid = (Integer) processes[i];
 					Integer[] pages = pageMap.get(pid);
-
-					System.out.println("Process id=");
-
-
-
 					int iPhysicalPage;
 					int bytesUsed;
+					int totalBytesUsed = 0;
 					Page page;
 					for (int j = 0; j < pages.length; j++) {
 						iPhysicalPage = pages[j];
 						page = pageList[iPhysicalPage];
+
 						bytesUsed = page.getPageSize();
+						totalBytesUsed += bytesUsed;
+						internalFragmentation += (32 - bytesUsed);
+
 						System.out.println("Virt Page "+j+" => Phys Page "+iPhysicalPage+" used: "+bytesUsed+" bytes");
 
 					}//EOfor
-
+					System.out.println("Process id="+pid+", size="+totalBytesUsed+" bytes, number of pages="+pages.length);
+					System.out.println();
 				}//EOfor
 
 				
 				//System.out.println("Total Internal Fragmentation = "+internalFragmentation);
 				
 				// Printing the failed allocations due to the 2 reasons
-				//System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
-				//System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
-				//System.out.println("");
+				System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
+				System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
+				System.out.println();
 				break;
 		} //EOSwitch
 
