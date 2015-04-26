@@ -568,7 +568,7 @@ class MemoryManagement {
 
 		// takes SIZE to potentially keep track of wasted space
 		public Page(int pid, int nVirtual, int pageSize) { 
-			this.pageSize = pageSize;p
+			this.pageSize = pageSize;
 			this.nVirtual = nVirtual;
 			this.pid = pid;
 		} 
