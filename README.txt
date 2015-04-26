@@ -120,7 +120,8 @@ force linear search in order to find the best fit hole for the segment.
 4.5) In paging, what data structure do you use for tracking what physical page is mapped to each virtual 
 page? (2)
 > As you can see in the previous answer to (4.4), we have a Page object which contains the virtual page reference. 
-The index in to the page array is the physical page number.
+A hashmap is used to map the process id to an array of corresponding page numbers, where the index into the page 
+array is the physical page number, and the number inside the page array is the physical page location.
 
 
 - - - - - - - - - - - - - - - -
