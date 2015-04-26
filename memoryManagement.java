@@ -464,15 +464,24 @@ class MemoryManagement {
 		int freeSpace = 0;
 		switch (policy) {
 			case 0:	// segmentation
+
+				// Printing out the internal fragmentation
+				int internalSegmentFrag = 0;
+				for (Segment segment: segmentList){
+					internalSegmentFrag += segment.getInternalFrag();
+				}
+
+				// Finding the allocated space
 				for (Segment segment: segmentList) {
 					allocatedSpace += segment.getSize();
 				}
+				int totalAllocated = allocatedSpace + internalSegmentFrag;
 
 				for(Hole hole: holeList){
 					freeSpace += hole.getSize();
 				}
 
-				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
+				System.out.println("Memory size = "+bytes+", allocated bytes = "+totalAllocated+", free = "+freeSpace);
 				System.out.println("There are currently "+holeList.size()+" holes and "+segmentMap.size()+" active processes.");
 				
 
@@ -488,18 +497,13 @@ class MemoryManagement {
 				}
 
 				// Printing out the segments for each process
-				System.out.println("Process List:");
+				System.out.println("Segments List:");
 				for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList.get(i);
 					// pid 3, text, start: 234, size: 2305
 					System.out.println("   Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
 				}
 				
-				// Printing out the internal fragmentation
-				int internalSegmentFrag = 0;
-				for (Segment segment: segmentList){
-					internalSegmentFrag += segment.getInternalFrag();
-				}
 				System.out.println("Total Internal Fragmentation = "+internalSegmentFrag);
 				
 				// Printing the failed allocations due to the 2 reasons
@@ -557,8 +561,6 @@ class MemoryManagement {
 				System.out.println();
 
 				System.out.println("Process list:");	// Process list:
-
-				//Process id=34, size=95 bytes, number of pages=3
 
 				Object[] processes = pageMap.keySet().toArray();
 
