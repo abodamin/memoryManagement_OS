@@ -350,7 +350,6 @@ class MemoryManagement {
 		Hole holeToInsert = null;
 		for (Hole hole: holeList) {
 			difference = hole.getSize() - bytes;
-
 			// if segment fits in hole and is smaller than previously chosen hole
 			if (difference >= 0 && difference < leftoverSpace) {
 				holeToInsert = hole;
@@ -550,7 +549,7 @@ class MemoryManagement {
 		public int getLimit() { return limit; }
 		public void setBase(int base) { this.base = base; }
 		public void setLimit(int limit) { this.base = base; }	
-		public int getSize() { return limit - base; }
+		public int getSize() { return limit - base + 1; }
 	} //EOHole
 
 
