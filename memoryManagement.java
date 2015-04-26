@@ -97,7 +97,7 @@ class MemoryManagement {
 								int totalSize = process.getSize();
 								boolean pageInserted;
 								
-								int remainder = (totalSize%3);
+								int remainder = (totalSize%32);
 								int pages = (totalSize - remainder)/pageSize;
 
 								// set up page table mapping
@@ -400,6 +400,7 @@ class MemoryManagement {
 	*/
 	public boolean allocate(int pid, int nVirtual, int bytes) {
 		Page page = new Page(pid, nVirtual, bytes);
+		System.out.println("page bytes: "+bytes);
 		Integer iPhysicalPage = new Integer(insertPage(page));
 		if (iPhysicalPage != -1) {
 			// record virtual to physical page mapping
@@ -535,7 +536,7 @@ class MemoryManagement {
 				// Total Internal Fragmentation = 13 bytes
 				// Failed allocations (No memory) = 2
 				// Failed allocations (External Fragmentation) = 0 
-				
+
 
 				
 				LinkedList<Integer> freePageList = new LinkedList<Integer>();
