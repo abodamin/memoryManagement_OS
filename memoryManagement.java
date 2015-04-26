@@ -38,7 +38,6 @@ class MemoryManagement {
 	*/
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		// intialize memory - base 0, limit GivenBytes
-		holeList.add(new Hole(0, bytes-1));
 		this.bytes = bytes;
 		this.policy = policy;
 		this.processQueue = processQueue;
@@ -186,6 +185,10 @@ class MemoryManagement {
 	*	@param	 Hole  
 	*/
 	public void insertSegmentInHole(Segment segment, Hole hole) {
+		// remove hole
+		holeList.remove(hole);
+
+		// check if any space leftover for new hole
 		int leftoverSpace = hole.getSize() - segment.getSize();
 		if (leftoverSpace > 16) { // there is more than 16 bytes leftover
 
@@ -259,6 +262,9 @@ class MemoryManagement {
 		int iHoleBefore = -1;
 		int iHoleAfter = -1;
 
+		// where the new hole should be added in list
+		int iHoleInsert = -1;	
+
 		for (int i = 0; i < holeList.size(); i++) {
 			Hole checkHole = holeList.get(i);
 			int checkHoleBase = checkHole.getBase();
@@ -290,20 +296,26 @@ class MemoryManagement {
 				hole.setLimit(checkHoleLimit);
 				break;
 			}
+
+			// check if hole comes before current hole
+			if (holeLimit < checkHoleLimit) {
+				iHoleInsert = i;
+				break;
+			}
 		} //EoFor
 	
 		// remove holes to merge and add hole
-		int iHoleInsert = -1; // where the new hole should be added in list
 		if (iHoleAfter != -1 && iHoleBefore != -1) {
+			iHoleInsert = -1; 
 
 			if (iHoleAfter != -1) {	// merge with hole after
 				iHoleInsert = iHoleAfter;
-				Hole holeAfter = holeList.remove(iHoleAfter);
+				holeList.remove(iHoleAfter);
 			}
 			
 			if (iHoleBefore != -1) { // merge with hole before
 				iHoleInsert = iHoleBefore;
-				Hole holeBefore = holeList.remove(iHoleBefore);
+				holeList.remove(iHoleBefore);
 			} 
 
 			if (iHoleInsert == holeList.size()-1) {
@@ -313,9 +325,15 @@ class MemoryManagement {
 			// add hole to end of list of ordered holes
 			holeList.add(iHoleInsert, hole);
 			} 
+		
+		} else if (iHoleInsert != -1) {
+			// hole comes before another hole
+			holeList.add(iHoleInsert, hole);
+		
 		} else {
+			// hole comes after all other holes
 			holeList.add(hole);
-		} 
+		}
 	} // EOAddHole
 
 	/**
