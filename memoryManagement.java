@@ -101,10 +101,11 @@ class MemoryManagement {
 
 								// set up page table mapping
 								if (remainder > 0) {
-									pageMap.put(pid, new int[pages + 1]);
+									int[] pageList = new int[pages + 1];
 								} else {
-									pageMap.put(pid, new int[pages]);
+									int[] pageList = new int[pages];	
 								}
+								pageMap.put(pid, pageList);
 
 								// Get Remainder
 								if (remainder > 0){
@@ -386,7 +387,9 @@ class MemoryManagement {
 		Page page = new Page(pid, nVirtual, bytes);
 		int iPhysicalPage = insertPage(page);
 		if (iPhysicalPage != -1) {
-			pageMap.put(pid, pageTable.get(pid)[nVirtual] = iPhysicalPage);
+			int[] mapping = pageMap.get(pid);
+			mapping[nVirtual] = iPhysicalPage;
+			pageMap.put(pid, mapping);
 			return true;
 		}
 		return false;
