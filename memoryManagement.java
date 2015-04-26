@@ -434,7 +434,7 @@ class MemoryManagement {
 				}
 
 				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
-				System.out.println("There are currently "+holeList.size()+" holes and "+processQueue.size()+" active processes.");
+				System.out.println("There are currently "+holeList.size()+" holes and "+segmentMap.size()+" active processes.");
 				
 
 				// Printing out the Holes
@@ -510,6 +510,8 @@ class MemoryManagement {
 
 				*/
 				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
+				System.out.println("allocated pages = "+segmentList.size()+", free pages = "+holeList.size());
+				System.out.println("There are currently "+pageMap.size()+" active processes.");
 
 				int allocatedPages = 0;
 				int internalFragmentation = 0;
