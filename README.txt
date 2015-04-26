@@ -6,19 +6,27 @@ INCLUDED IN THIS .ZIP:
 ----------------------
 
 Main Files:
->> MemoryManagement.java - The file that does the grunt work of the CPU
-	> Hole / Action / Page / Segment: Not separate files, but the objects for their respective
+- - - - - -
+	>> MemoryManagement.java - The file that does the grunt work of the CPU
+		> Hole / Action / Page / Segment: Not separate files, but the objects for their respective
 					   types. These can be found at the bottom of
 					   MemoryManagement.java
->> TestMemoryManagement.java - main file that reads through supplied text file and passes off information to MemoryManagement.java
+	>> TestMemoryManagement.java - main file that reads through supplied text file and passes off 
+	information to MemoryManagement.java
 
->> Process.java - Class that creates Process Objects to be used in TestMemoryManagement.java and MemoryManagement.java
-
+	>> Process.java - Class that creates Process Objects to be used in TestMemoryManagement.java 
+	and MemoryManagement.java
 
 Testing Files:
+- - - - - - - -
 	>> sample.txt - supplied test file
+	>> sample2.txt - simple test file for SEGMENTATION
+	>> sample3.txt - simple test fiel for PAGING
 	>> internalFrag_segmentation.txt - test file with minimal internal fragmentation within segmentation
 	>> internalFrag_paging.txt - test file with minimal internal fragmentation within segmentation
+
+Other:
+- - - -
 	>> README.txt - this text file
 
 
