@@ -28,6 +28,9 @@ class MemoryManagement {
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 	private Page[] pageList;
 
+	/* HashMaps for segment and page recognition */
+	private HashMap segmentMap = new HashMap();
+	private HashMap pageMap = new HashMap();
 
 	/**
 	*	MemoryManagement
@@ -68,13 +71,13 @@ class MemoryManagement {
 				// process info: A, size, pid, text, data, heap
 				switch (process.getAction()) {
 					case "A": // add process
+						int pid = process.getPid();
+
 						switch (policy) {
 							case 0:	// segmentation
-
-
 								int[] segmentSizeList = process.getSegments();
 								String[] segmentTypeList = process.getSegmentTypes();
-								int pid = process.getPid();
+								
 								boolean segmentInserted;
 								
 								for (int i = 0; i < segmentSizeList.length; i++) {
@@ -91,11 +94,17 @@ class MemoryManagement {
 							case 1:	// paging
 								int pageSize = 32;
 								int totalSize = process.getSize();
-								pid = process.getPid();
 								boolean pageInserted;
 								
 								int remainder = (totalSize%3);
 								int pages = (totalSize - remainder)/pageSize;
+
+								// set up page table mapping
+								if (remainder > 0) {
+									pageMap.put(pid, new int[pages + 1]);
+								} else {
+									pageMap.put(pid, new int[pages]);
+								}
 
 								// Get Remainder
 								if (remainder > 0){
@@ -159,9 +168,10 @@ class MemoryManagement {
 	*	Inserts a page into a page list if there is space left.
 	*	
 	*	@param	 page	
-	*	@return  Whether or not there was space for the page 
+	*	@return  the physical memory location of the inserted page
+	*			 if page wasn't inserted, this will return -1
 	*/
-	public boolean insertPage(Page page) {
+	public int insertPage(Page page) {
 		// add page of pages to list of pages
 		for (int i = 0; i < pageList.length; i++) {
 
@@ -170,10 +180,10 @@ class MemoryManagement {
 
 				// insert page in slot
 				pageList[i] = page;
-				return true;
+				return i;
 			}
 		}
-		return false;
+		return -1;
 	}
 
 
@@ -374,7 +384,12 @@ class MemoryManagement {
 	*/
 	public boolean allocate(int pid, int nVirtual, int bytes) {
 		Page page = new Page(pid, nVirtual, bytes);
-		return insertPage(page);
+		int iPhysicalPage = insertPage(page);
+		if (iPhysicalPage != -1) {
+			pageMap.put(pid, pageTable.get(pid)[nVirtual] = iPhysicalPage);
+			return true;
+		}
+		return false;
 	}
 
 	public boolean deallocate(int deallocatePid) { 
