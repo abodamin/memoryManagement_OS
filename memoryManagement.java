@@ -573,15 +573,14 @@ class MemoryManagement {
 
 		// takes SIZE to potentially keep track of wasted space
 		public Page(int pid, int nVirtual, int pageSize) { 
-			this.pageSize = pageSize;
+			this.pageSize = pageSize;p
 			this.nVirtual = nVirtual;
 			this.pid = pid;
 		} 
 
 		public int getPid() { return pid; }
 		public int getnVirtual() { return nVirtual; }
-		public int getPageSize() { return pageSize; }
-		
+		public int getPageSize() { return pageSize; }		
 	} //EOPage
 
 
