@@ -21,10 +21,6 @@ class MemoryManagement {
     /* Queue for Processes - comes from TestMemoryManagement.java */
     LinkedList<Process> processQueue;
 
-    /* HoleLists for Segmentation */
-	private ArrayList<Hole> holeList_byOrder = new ArrayList<Hole>();
-	private ArrayList<Hole> holeList_bySize = new ArrayList<Hole>();
-
 	/* HoleList for Paging */
 	private ArrayList<Hole> holeList = new ArrayList<Hole>();
 
@@ -42,14 +38,12 @@ class MemoryManagement {
 	*/
 	public MemoryManagement(int bytes, int policy, LinkedList<Process> processQueue) { 
 		// intialize memory - base 0, limit GivenBytes
-		holeList.add(new Hole(0, bytes-1));
 		this.bytes = bytes;
 		this.policy = policy;
 		this.processQueue = processQueue;
 
 		// intialize memory with these many bytes.
-		holeList_byOrder.add(new Hole(0, bytes-1));
-		holeList_bySize.add(new Hole(0, bytes-1));
+		holeList.add(new Hole(0, bytes-1));
 
 		run();
 	}
@@ -59,10 +53,16 @@ class MemoryManagement {
 	*   Begins allocating / deallocated 
 	*/
 	public void run() {
+		if (policy == 1) { // paging
+			// set up page list
+			int nPages = this.bytes / 32;
+			pageList = new Page[nPages];
+		}
+
 		// Use segmentation if policy==0, paging if policy==1
 		for (Process process: processQueue) {
 			if (!hasEnoughMemory(process)) {
-				failedAllocations_externalFragmentation++;
+				failedAllocations_noMemory++;
 			} else { // not enough memory/space to add process
 
 				// process info: A, size, pid, text, data, heap
@@ -147,7 +147,7 @@ class MemoryManagement {
 	*/
 	public boolean hasEnoughMemory(Process process) {
 		int processSize = process.getSize();
-		if (processSize < this.bytes) {
+		if (processSize <= this.bytes) {
 			return true;
 		}
 		return false;
@@ -185,6 +185,10 @@ class MemoryManagement {
 	*	@param	 Hole  
 	*/
 	public void insertSegmentInHole(Segment segment, Hole hole) {
+		// remove hole
+		holeList.remove(hole);
+
+		// check if any space leftover for new hole
 		int leftoverSpace = hole.getSize() - segment.getSize();
 		if (leftoverSpace > 16) { // there is more than 16 bytes leftover
 
@@ -212,28 +216,6 @@ class MemoryManagement {
 		
 		// add segment to list of segments
 		addSegmentToSortedList(segment);
-	}
-
-	/**
-	* addHoleToSortedSizeList()
-	* Adds a hole to the sorted list of holes 
-	*
-	* @param Hole, Size
-	*/
-	public void addHoleToSortedSizeList(Hole hole, int size) {
-		if (holeList_bySize.isEmpty()) {
-			holeList_bySize.add(hole);
-		} else if (hole.getSize() >= holeList_bySize.get(holeList_bySize.size()-1).getSize()) {
-			// hole is biggest hole
-			holeList_bySize.add(hole);
-		} else {
-			for (int i = 0; i < holeList_bySize.size(); i++) {
-				if (size <= holeList_bySize.get(i).getSize()) {
-					holeList_bySize.add(i, hole);
-					break;
-				}
-			}
-		}
 	}
 
 	/**
@@ -280,8 +262,11 @@ class MemoryManagement {
 		int iHoleBefore = -1;
 		int iHoleAfter = -1;
 
-		for (int i = 0; i < holeList_byOrder.size(); i++) {
-			Hole checkHole = holeList_byOrder.get(i);
+		// where the new hole should be added in list
+		int iHoleInsert = -1;	
+
+		for (int i = 0; i < holeList.size(); i++) {
+			Hole checkHole = holeList.get(i);
 			int checkHoleBase = checkHole.getBase();
 			int checkHoleLimit = checkHole.getLimit();
 			
@@ -291,9 +276,9 @@ class MemoryManagement {
 				iHoleBefore = i;
 				hole.setBase(checkHoleBase);
 
-				if ((i+1)<holeList_byOrder.size()) {
+				if ((i+1)<holeList.size()) {
 					// next hole exists
-					checkHoleBase = holeList_byOrder.get(i+1).getBase();
+					checkHoleBase = holeList.get(i+1).getBase();
 					
 					// check if hole needs to combine with hole after
 					if (holeLimit == checkHoleBase - 1) {
@@ -311,45 +296,44 @@ class MemoryManagement {
 				hole.setLimit(checkHoleLimit);
 				break;
 			}
+
+			// check if hole comes before current hole
+			if (holeLimit < checkHoleLimit) {
+				iHoleInsert = i;
+				break;
+			}
 		} //EoFor
 	
 		// remove holes to merge and add hole
-		int iHoleInsert; // where the new hole should be added in list
 		if (iHoleAfter != -1 && iHoleBefore != -1) {
+			iHoleInsert = -1; 
 
 			if (iHoleAfter != -1) {	// merge with hole after
 				iHoleInsert = iHoleAfter;
-				Hole holeAfter = holeList_byOrder.remove(iHoleAfter);
-				holeList_bySize.remove(iHoleAfter);
+				holeList.remove(iHoleAfter);
 			}
 			
 			if (iHoleBefore != -1) { // merge with hole before
 				iHoleInsert = iHoleBefore;
-				Hole holeBefore = holeList_byOrder.remove(iHoleBefore);
-				holeList_bySize.remove(iHoleBefore);
+				holeList.remove(iHoleBefore);
 			} 
 
-			if (iHoleInsert == holeList_byOrder.size()-1) {
+			if (iHoleInsert == holeList.size()-1) {
 				// hole goes to end of list
-				holeList_byOrder.add(hole);
+				holeList.add(hole);
 			} else {
 			// add hole to end of list of ordered holes
-			holeList_byOrder.add(iHoleInsert, hole);
+			holeList.add(iHoleInsert, hole);
 			} 
+		
+		} else if (iHoleInsert != -1) {
+			// hole comes before another hole
+			holeList.add(iHoleInsert, hole);
+		
 		} else {
-			holeList_byOrder.add(hole);
-			holeList_byOrder.remove(iHoleBefore);
-		} 
-
-		if (iHoleInsert == holeList_byOrder.size()-1) {
-			holeList_byOrder.add(iHoleInsert, hole);
-		} else { // add hole to end of list of ordered holes
-			holeList_byOrder.add(hole); 
+			// hole comes after all other holes
+			holeList.add(hole);
 		}
-
-		// add hole to end of list of size ordered holes
-		addHoleToSortedSizeList(hole, hole.getSize());
-	
 	} // EOAddHole
 
 	/**
@@ -358,22 +342,27 @@ class MemoryManagement {
 	*	@param	 size of segment or page in bytes	
 	*	@Return  whether or not segment could be inserted
 	*/
-	public boolean allocate(int pid, String type, int bytes) { 
-		// Allocate the segment
-		// Find the right Hole
-		// Get the base and limit of that hole
-		
-		boolean allocated = false;
+	public boolean allocate(int pid, String type, int bytes) { 		
 		// Segment(int pid, String type, int segmentSize)
 		Segment newSegment = new Segment(pid, type, bytes);
-		for (Hole hole: holeList_bySize) {
-			if(bytes <= hole.getSize()) {
-				insertSegmentInHole(newSegment, hole);
-				allocated = true;
-				break;
+		int leftoverSpace = Integer.MAX_VALUE;
+		int difference;
+		Hole holeToInsert = null;
+		for (Hole hole: holeList) {
+			difference = hole.getSize() - bytes;
+
+			// if segment fits in hole and is smaller than previously chosen hole
+			if (difference >= 0 && difference < leftoverSpace) {
+				holeToInsert = hole;
+				leftoverSpace = difference;
 			}
+
 		}
-		return allocated;
+		if (holeToInsert != null) {
+			insertSegmentInHole(newSegment, holeToInsert);
+			return true;
+		} 
+		return false;
 	}
 
 	/**
@@ -388,7 +377,7 @@ class MemoryManagement {
 	}
 
 	public boolean deallocate(int deallocatePid) { 
-		boolean found;
+		boolean found = false;
 		switch (policy) {
 			case 0:	// segmentation
 				Segment segment;
@@ -405,17 +394,19 @@ class MemoryManagement {
 				break;
 			case 1:	// paging
 				for (int i = 0; i < pageList.length; i++) {
-					int pagePid = pageList[i].getPid();
-					if (pagePid == deallocatePid){
+					if (pageList[i] != null) {	// page in slot
+						int pagePid = pageList[i].getPid();
+						
+						if (pagePid == deallocatePid){	// check page ID
 						// remove page
 						pageList[i] = null;
 						found = true;
-					} //EOif
+						} //EOif
+					}
+					
 				} //EOif
 				break;
 		}
-		// return 1 if successful, -1 otherwise with an error message
-		// ^ returning a boolean would make more sense than int
 		return found;
 	}
 
@@ -447,7 +438,7 @@ class MemoryManagement {
 
 				// Printing out the Holes
 				for(int i = 0; i < holeList.size(); i++){
-					Hole hole = holeList_byOrder.get(i);
+					Hole hole = holeList.get(i);
 					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
 				}
 
@@ -518,9 +509,11 @@ class MemoryManagement {
 				Page page;
 				for (int i = 0; i < pageList.length; i++) {
 					if (pageList[i] == null) { // this slot is free
+						System.out.println("free");
 						freeSpace += 32;
 					} else { // this slot has a page
 						page = pageList[i];
+						System.out.println("Phys Page"+i+" pid = "+page.getPid());
 						allocatedPages += 1;
 						allocatedSpace += 32;
 						// use a hash to store information on processes?
@@ -530,7 +523,7 @@ class MemoryManagement {
 					}
 				}
 
-				System.out.println("Memory size = "+bytes+", total pages = "+(bytes/32));
+				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
 				
 				break;
 		} //EOSwitch

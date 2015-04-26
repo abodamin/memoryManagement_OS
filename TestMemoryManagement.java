@@ -32,7 +32,7 @@ class TestMemoryManagement {
 	        	String[] memorySize_task = firstLine.split(" ");
 
 	        	memorySize = Integer.parseInt(memorySize_task[0]);  // Get the total memory size
-	        	task = Integer.parseInt(memorySize_task[2]); 		// 0 = segmentation, 1 = paging 
+	        	task = Integer.parseInt(memorySize_task[1]); 		// 0 = segmentation, 1 = paging 
 
 		        while (sc.hasNext()){
 	        		String nextJob = sc.nextLine();
@@ -51,7 +51,7 @@ class TestMemoryManagement {
 		        	} else if (newProcess_List.length == 2){
 						// For Delete: [D, 1]
 		        		String action = newProcess_List[0];
-		        		int pid = Integer.parseInt(newProcess_List[2]);
+		        		int pid = Integer.parseInt(newProcess_List[1]);
 		        		
 		        		// Make your new 'process' object & add to queue
 						Process newProcess = new Process(action, pid);
@@ -61,9 +61,9 @@ class TestMemoryManagement {
         				// For Add: [A, size, pid, text, data, heap]
         				String action = newProcess_List[0];
 		        		int pid = Integer.parseInt(newProcess_List[2]);
-						int textSegment = Integer.parseInt(newProcess_List[4]); // Creating the data segment
-						int dataSegment = Integer.parseInt(newProcess_List[5]); // Creating the data segment
-						int heapSegment = Integer.parseInt(newProcess_List[6]); // Creating the heap segment
+						int textSegment = Integer.parseInt(newProcess_List[3]); // Creating the data segment
+						int dataSegment = Integer.parseInt(newProcess_List[4]); // Creating the data segment
+						int heapSegment = Integer.parseInt(newProcess_List[5]); // Creating the heap segment
 
 						// Make your new 'process' object & add to queue
 						Process newProcess = new Process(action, pid, textSegment, dataSegment, heapSegment);
