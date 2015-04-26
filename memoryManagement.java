@@ -561,9 +561,14 @@ class MemoryManagement {
 				System.out.println("Free Page list:");
 				System.out.print("	");
 				// printing all free page numbers
-				for (int nPage: freePageList) {
+				if (freePageList.size() > 0 ){
+					for (int nPage: freePageList) {
 					System.out.print(nPage+",");
+					}
+				} else {
+					System.out.println("There are no free pages");
 				}
+				
 				System.out.println();
 
 				System.out.println("Process list:");	// Process list:
@@ -575,12 +580,12 @@ class MemoryManagement {
 				for (int i = 0; i < processes.length; i++) {
 					Integer pid = (Integer) processes[i];
 					Integer[] pages = pageMap.get(pid);
-					System.out.println("Process id=");
 
 					int iPhysicalPage;
 					int bytesUsed;
 					int totalBytesUsed = 0;
 					Page page;
+					System.out.println("Process ID = "+pid+", size = "+totalBytesUsed+" bytes, number of pages = "+pages.length);
 					for (int j = 0; j < pages.length; j++) {
 						iPhysicalPage = pages[j];
 						page = pageList[iPhysicalPage];
@@ -589,10 +594,9 @@ class MemoryManagement {
 						totalBytesUsed += bytesUsed;
 						internalFragmentation += (32 - bytesUsed);
 
-						System.out.println("Virt Page "+j+" => Phys Page "+iPhysicalPage+" used: "+bytesUsed+" bytes");
+						System.out.println("   Virt Page "+j+" => Phys Page "+iPhysicalPage+" used: "+bytesUsed+" bytes");
 
 					}//EOfor
-					System.out.println("Process id="+pid+", size="+totalBytesUsed+" bytes, number of pages="+pages.length);
 					System.out.println();
 				}//EOfor
 
