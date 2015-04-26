@@ -434,13 +434,18 @@ class MemoryManagement {
 				}
 
 				System.out.println("Memory size = "+bytes+", allocated bytes = "+allocatedSpace+", free = "+freeSpace);
-				System.out.println("There are currently "+holeList.size()+" holes and "+segmentList.size()+" active processes.");
-				System.out.println("Hole List:");
+				System.out.println("There are currently "+holeList.size()+" holes and "+processQueue.size()+" active processes.");
+				
 
 				// Printing out the Holes
-				for(int i = 0; i < holeList.size(); i++){
+				System.out.println("Hole List:");
+				if(holeList.size() > 0){
+					for(int i = 0; i < holeList.size(); i++){
 					Hole hole = holeList.get(i);
-					System.out.println("Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
+					System.out.println("   Hole "+i+": start location = "+hole.getBase()+", size = "+hole.getSize());
+					}
+				} else {
+					System.out.println("   There are no holes");
 				}
 
 				// Printing out the segments for each process
@@ -448,7 +453,7 @@ class MemoryManagement {
 				for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList.get(i);
 					// pid 3, text, start: 234, size: 2305
-					System.out.println("Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
+					System.out.println("   Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
 				}
 				
 				// Printing out the internal fragmentation
@@ -461,6 +466,7 @@ class MemoryManagement {
 				// Printing the failed allocations due to the 2 reasons
 				System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
 				System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
+				System.out.println("");
 				
 				break;
 			case 1:	// paging
@@ -503,6 +509,7 @@ class MemoryManagement {
 				System.out.println("Allocated pages = "+pageList.size()+", free pages = "+freePages);
 
 				*/
+				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
 
 				int allocatedPages = 0;
 				int internalFragmentation = 0;
@@ -510,11 +517,11 @@ class MemoryManagement {
 				Page page;
 				for (int i = 0; i < pageList.length; i++) {
 					if (pageList[i] == null) { // this slot is free
-						System.out.println("free");
+						System.out.println("    Page List Slot "+i+" is free");
 						freeSpace += 32;
 					} else { // this slot has a page
 						page = pageList[i];
-						System.out.println("Phys Page"+i+" pid = "+page.getPid());
+						System.out.println("    Physical Page = "+i+", pid = "+page.getPid());
 						allocatedPages += 1;
 						allocatedSpace += 32;
 						// use a hash to store information on processes?
@@ -523,9 +530,13 @@ class MemoryManagement {
 						internalFragmentation += (32 - page.getPageSize());
 					}
 				}
-
-				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
 				
+				System.out.println("Total Internal Fragmentation = "+internalFragmentation);
+				
+				// Printing the failed allocations due to the 2 reasons
+				System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
+				System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
+				System.out.println("");
 				break;
 		} //EOSwitch
 
