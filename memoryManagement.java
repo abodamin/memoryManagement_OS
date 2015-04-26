@@ -28,9 +28,8 @@ class MemoryManagement {
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 	private Page[] pageList;
 
-	/* HashMaps for segment and page recognition */
-	private HashMap segmentMap = new HashMap();
-	private HashMap pageMap = new HashMap();
+	private HashMap<Integer, Integer[]> segmentMap = new HashMap<Integer, Integer[]>();
+	private Map<Integer, Integer[]> pageMap = new HashMap<Integer, Integer[]>();
 
 	/**
 	*	MemoryManagement
@@ -105,6 +104,9 @@ class MemoryManagement {
 								} else {
 									int[] pageList = new int[pages];	
 								}
+								
+								System.out.println(pageList);
+								
 								pageMap.put(pid, pageList);
 
 								// Get Remainder
