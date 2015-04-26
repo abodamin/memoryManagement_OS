@@ -29,7 +29,7 @@ class MemoryManagement {
 	private Page[] pageList;
 
 	private HashMap<Integer, Integer[]> segmentMap = new HashMap<Integer, Integer[]>();
-	private Map<Integer, Integer[]> pageMap = new HashMap<Integer, Integer[]>();
+	private Map<Integer, Page[]> pageMap = new HashMap<Integer, Page[]>();
 
 	/**
 	*	MemoryManagement
@@ -100,13 +100,12 @@ class MemoryManagement {
 
 								// set up page table mapping
 								if (remainder > 0) {
-									int[] pageList = new int[pages + 1];
+									Integer[] pageList = new Integer[pages + 1];
 								} else {
-									int[] pageList = new int[pages];	
+									Integer[] pageList = new Integer[pages];	
 								}
-								
-								System.out.println(pageList);
-								
+								// Casting to put in the map
+								Integer castPid = new Integer(pid);
 								pageMap.put(pid, pageList);
 
 								// Get Remainder
@@ -389,7 +388,7 @@ class MemoryManagement {
 		Page page = new Page(pid, nVirtual, bytes);
 		int iPhysicalPage = insertPage(page);
 		if (iPhysicalPage != -1) {
-			int[] mapping = pageMap.get(pid);
+			Page[] mapping = pageMap.get(pid);
 			mapping[nVirtual] = iPhysicalPage;
 			pageMap.put(pid, mapping);
 			return true;
