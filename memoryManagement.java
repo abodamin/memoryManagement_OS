@@ -77,9 +77,9 @@ class MemoryManagement {
 							case 0:	// segmentation
 								int[] segmentSizeList = process.getSegments();
 								String[] segmentTypeList = process.getSegmentTypes();
+								segmentMap.put(pid, new int[3]);
 								
 								boolean segmentInserted;
-								
 								for (int i = 0; i < segmentSizeList.length; i++) {
 									segmentInserted = allocate(pid, segmentTypeList[i], segmentSizeList[i]);
 
@@ -399,6 +399,8 @@ class MemoryManagement {
 		boolean found = false;
 		switch (policy) {
 			case 0:	// segmentation
+				// remove record of process in segment map
+				segmentMap.remove(deallocatePid);
 				Segment segment;
 				for (int i = segmentList.size()-1; i >= 0; i--){
 					segment = segmentList.get(i);
@@ -412,6 +414,8 @@ class MemoryManagement {
 
 				break;
 			case 1:	// paging
+				// remove record of process in segment map
+				pageMap.remove(deallocatePid);
 				for (int i = 0; i < pageList.length; i++) {
 					if (pageList[i] != null) {	// page in slot
 						int pagePid = pageList[i].getPid();
