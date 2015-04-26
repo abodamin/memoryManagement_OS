@@ -141,9 +141,11 @@ class MemoryManagement {
 	} // EORun
 
 	/**
+	* hasEnoughMemory()
+	* Takes in a process and returns a boolean value on if there
+	*  is enough space left in RAM
 	*
-	*
-	*
+	* @param process
 	*/
 	public boolean hasEnoughMemory(Process process) {
 		int processSize = process.getSize();
