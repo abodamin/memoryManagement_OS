@@ -116,7 +116,7 @@ class MemoryManagement {
 									if (pages == 0) {
 										nVirtual = 0;
 									} else {
-										nVirtual = pages + 1;
+										nVirtual = pages;
 									}
 									pageInserted = allocate(pid, nVirtual, remainder);
 
@@ -399,7 +399,6 @@ class MemoryManagement {
 	*/
 	public boolean allocate(int pid, int nVirtual, int bytes) {
 		Page page = new Page(pid, nVirtual, bytes);
-		System.out.println("page bytes: "+bytes);
 		Integer iPhysicalPage = new Integer(insertPage(page));
 		if (iPhysicalPage != -1) {
 			// record virtual to physical page mapping
