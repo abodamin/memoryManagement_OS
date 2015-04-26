@@ -21,7 +21,7 @@ Testing Files:
 - - - - - - - -
 	>> sample.txt - supplied test file
 	>> sample2.txt - simple test file for SEGMENTATION
-	>> sample3.txt - simple test fiel for PAGING
+	>> sample3.txt - simple test file for PAGING
 	>> internalFrag_segmentation.txt - test file with minimal internal fragmentation within segmentation
 	>> internalFrag_paging.txt - test file with minimal internal fragmentation within segmentation
 

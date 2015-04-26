@@ -28,8 +28,8 @@ class MemoryManagement {
 	private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 	private Page[] pageList;
 
-	private HashMap<Integer, Integer[]> segmentMap = new HashMap<Integer, Integer[]>();
-	private Map<Integer, Page[]> pageMap = new HashMap<Integer, Page[]>();
+	private HashMap<Integer, ArrayList<Segment>> segmentMap = new HashMap<Integer, ArrayList<Segment>>();
+	private Map<Integer, Integer[]> pageMap = new HashMap<Integer, Integer[]>();
 
 	/**
 	*	MemoryManagement
@@ -76,7 +76,9 @@ class MemoryManagement {
 							case 0:	// segmentation
 								int[] segmentSizeList = process.getSegments();
 								String[] segmentTypeList = process.getSegmentTypes();
-								segmentMap.put(pid, new int[3]);
+
+								// set up segment table mapping
+								segmentMap.put(new Integer(pid), new ArrayList<Segment>());
 								
 								boolean segmentInserted;
 								for (int i = 0; i < segmentSizeList.length; i++) {
@@ -99,20 +101,25 @@ class MemoryManagement {
 								int pages = (totalSize - remainder)/pageSize;
 
 								// set up page table mapping
-								if (remainder > 0) {
-									Integer[] pageList = new Integer[pages + 1];
-								} else {
-									Integer[] pageList = new Integer[pages];	
-								}
 								// Casting to put in the map
 								Integer castPid = new Integer(pid);
-								pageMap.put(pid, pageList);
+								if (remainder > 0) {
+									pageMap.put(castPid, new Integer[pages + 1]);
+								} else {
+									pageMap.put(castPid, new Integer[pages]);
+								}
+								
 
 								// Get Remainder
 								if (remainder > 0){
-									int nVirtual = pages + 1;
-									pageInserted = allocate(pid, nVirtual,remainder);
-									
+									int nVirtual;
+									if (pages == 0) {
+										nVirtual = 0;
+									} else {
+										nVirtual = pages + 1;
+									}
+									pageInserted = allocate(pid, nVirtual, pageSize);
+
 									// IF the page doesn't fit, then you're out of RAM
 									if (pageInserted == false){
 										deallocate(pid);
@@ -197,8 +204,9 @@ class MemoryManagement {
 	*	
 	*	@param	 Segment 	
 	*	@param	 Hole  
+	*	@return  Segment with updated base and limit registers
 	*/
-	public void insertSegmentInHole(Segment segment, Hole hole) {
+	public Segment insertSegmentInHole(Segment segment, Hole hole) {
 		// remove hole
 		holeList.remove(hole);
 
@@ -230,6 +238,7 @@ class MemoryManagement {
 		
 		// add segment to list of segments
 		addSegmentToSortedList(segment);
+		return segment;
 	}
 
 	/**
@@ -372,7 +381,12 @@ class MemoryManagement {
 
 		}
 		if (holeToInsert != null) {
-			insertSegmentInHole(newSegment, holeToInsert);
+			// save segment to process id
+			Segment segment = insertSegmentInHole(newSegment, holeToInsert);
+			Integer castPid = new Integer(pid);
+			ArrayList<Segment> mapping = segmentMap.get(castPid);
+			mapping.add(segment);
+			segmentMap.put(castPid, mapping);
 			return true;
 		} 
 		return false;
@@ -386,11 +400,13 @@ class MemoryManagement {
 	*/
 	public boolean allocate(int pid, int nVirtual, int bytes) {
 		Page page = new Page(pid, nVirtual, bytes);
-		int iPhysicalPage = insertPage(page);
+		Integer iPhysicalPage = new Integer(insertPage(page));
 		if (iPhysicalPage != -1) {
-			Page[] mapping = pageMap.get(pid);
-			mapping[nVirtual] = iPhysicalPage;
-			pageMap.put(pid, mapping);
+			// record virtual to physical page mapping
+			Integer castPid = new Integer(pid);
+			Integer[] mapping = pageMap.get(castPid);
+			mapping[nVirtual] = new Integer(iPhysicalPage);
+			pageMap.put(castPid, mapping);
 			return true;
 		}
 		return false;
@@ -401,7 +417,7 @@ class MemoryManagement {
 		switch (policy) {
 			case 0:	// segmentation
 				// remove record of process in segment map
-				segmentMap.remove(deallocatePid);
+				segmentMap.remove(new Integer(deallocatePid));
 				Segment segment;
 				for (int i = segmentList.size()-1; i >= 0; i--){
 					segment = segmentList.get(i);
@@ -416,7 +432,7 @@ class MemoryManagement {
 				break;
 			case 1:	// paging
 				// remove record of process in segment map
-				pageMap.remove(deallocatePid);
+				pageMap.remove(new Integer(deallocatePid));
 				for (int i = 0; i < pageList.length; i++) {
 					if (pageList[i] != null) {	// page in slot
 						int pagePid = pageList[i].getPid();
@@ -533,9 +549,10 @@ class MemoryManagement {
 
 				*/
 				System.out.println("Memory size = "+bytes+", total possible pages = "+(bytes/32));
-				System.out.println("allocated pages = "+segmentList.size()+", free pages = "+holeList.size());
+				//System.out.println("allocated pages = "+segmentList.size()+", free pages = "+holeList.size());
 				System.out.println("There are currently "+pageMap.size()+" active processes.");
 
+				/*
 				int allocatedPages = 0;
 				int internalFragmentation = 0;
 				LinkedList<Integer> freePageList = new LinkedList<Integer>();
@@ -555,13 +572,42 @@ class MemoryManagement {
 						internalFragmentation += (32 - page.getPageSize());
 					}
 				}
+				*/
+
+				System.out.println("Process list:");	// Process list:
+
+				Process id=34, size=95 bytes, number of pages=3
+
+				Object[] processes = pageMap.keySet().toArray();
+				// for every process
+				for (int i = 0; i < processes.length; i++) {
+					Integer pid = (Integer) processes[i];
+					Integer[] pages = pageMap.get(pid);
+
+					System.out.println("Process id=");
+
+
+
+					int iPhysicalPage;
+					int bytesUsed;
+					Page page;
+					for (int j = 0; j < pages.length; j++) {
+						iPhysicalPage = pages[j];
+						page = pageList[iPhysicalPage];
+						bytesUsed = page.getPageSize();
+						System.out.println("Virt Page "+j+" => Phys Page "+iPhysicalPage+" used: "+bytesUsed+" bytes");
+
+					}//EOfor
+
+				}//EOfor
+
 				
-				System.out.println("Total Internal Fragmentation = "+internalFragmentation);
+				//System.out.println("Total Internal Fragmentation = "+internalFragmentation);
 				
 				// Printing the failed allocations due to the 2 reasons
-				System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
-				System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
-				System.out.println("");
+				//System.out.println("Failed allocations (No memory) = "+failedAllocations_noMemory);
+				//System.out.println("Failed allocations (External Fragmentation) = "+failedAllocations_externalFragmentation);
+				//System.out.println("");
 				break;
 		} //EOSwitch
 
