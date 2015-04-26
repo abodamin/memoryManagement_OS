@@ -498,11 +498,17 @@ class MemoryManagement {
 
 				// Printing out the segments for each process
 				System.out.println("Segments List:");
-				for(int i = 0; i< segmentList.size(); i++){
+				
+				if(segmentList.size() > 0){
+					for(int i = 0; i< segmentList.size(); i++){
 					Segment segment = segmentList.get(i);
 					// pid 3, text, start: 234, size: 2305
 					System.out.println("   Process ID "+segment.getPid()+", "+segment.getType()+" start = "+segment.getBase()+", size = "+segment.getSize());
+					}
+				} else {
+					System.out.println("   There are no segments allocated");
 				}
+				
 				
 				System.out.println("Total Internal Fragmentation = "+internalSegmentFrag);
 				
@@ -588,8 +594,6 @@ class MemoryManagement {
 					Integer[] pages = pageMap.get(pid);
 
 					System.out.println("Process id=");
-
-
 
 					int iPhysicalPage;
 					int bytesUsed;
