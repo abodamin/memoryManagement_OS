@@ -97,7 +97,7 @@ class MemoryManagement {
 								int totalSize = process.getSize();
 								boolean pageInserted;
 								
-								int remainder = (totalSize%3);
+								int remainder = (totalSize%32);
 								int pages = (totalSize - remainder)/pageSize;
 
 								// set up page table mapping
@@ -127,7 +127,6 @@ class MemoryManagement {
 										break;
 									}
 								}//EOif
-
 								
 								// Get rest of pages
 								for (int i = 0; i < pages; i++ ){
