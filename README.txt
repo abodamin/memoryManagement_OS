@@ -4,19 +4,22 @@ Group Member(s): Alice Yang, Giovanna Diaz
 
 INCLUDED IN THIS .ZIP:
 ----------------------
+
+Main Files:
 >> MemoryManagement.java - The file that does the grunt work of the CPU
-	>> Hole / Action / Page / Segment: Not separate files, but the objects for their respective
+	> Hole / Action / Page / Segment: Not separate files, but the objects for their respective
 					   types. These can be found at the bottom of
 					   MemoryManagement.java
-
 >> TestMemoryManagement.java - main file that reads through supplied text file and passes off information to MemoryManagement.java
 
 >> Process.java - Class that creates Process Objects to be used in TestMemoryManagement.java and MemoryManagement.java
 
->> sample.txt - supplied test file
->> internalFrag_segmentation.txt - test file with minimal internal fragmentation within segmentation
->> internalFrag_paging.txt - test file with minimal internal fragmentation within segmentation
->> README.txt - this text file
+
+Testing Files:
+	>> sample.txt - supplied test file
+	>> internalFrag_segmentation.txt - test file with minimal internal fragmentation within segmentation
+	>> internalFrag_paging.txt - test file with minimal internal fragmentation within segmentation
+	>> README.txt - this text file
 
 
 COMPILING INSTRUCTIONS:
@@ -62,10 +65,12 @@ DOCUMENT THE PROBLEMS:
 
 ANSWERS TO PART 4:
 ------------------
-4.1) In your implementation of segmentation which of the best fit, first fit, or worst fit memory allocation policy do you use to find a free memory region for each segment? Why did you pick this policy? (5)
+4.1) In your implementation of segmentation which of the best fit, first fit, or worst fit memory allocation policy 
+do you use to find a free memory region for each segment? Why did you pick this policy? (5)
 > We implemented the best fit policy to find the empty segments. We chose this policy because it uses the 
-RAM more efficiently and it doesn’t waste as much space as the other policies that we could have used.
-
+RAM more efficiently and it doesn’t waste as much space as the other policies that we could have used. We
+are have O(n) efficiency beacuse of our loops.
+ 
 
 - - - - - - - - - - - - - - - -
 4.2) What data structures and search algorithm do you use for searching through the list of holes (in 
@@ -123,6 +128,8 @@ page? (2)
 - - - - - - - - - - - - - - - -
 4.6) How do the levels of internal and external fragmentation compare when you run the sample input in sample.txt with each of your allocators? Why is this the case? (5 + 5)
 > When we run the sample.txt with SEGMENTATION we find that…
+
+
 
 > When we run the sample.txt with PAGING we find that…
 
